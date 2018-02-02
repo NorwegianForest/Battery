@@ -29,4 +29,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile 'org.litepal.android:core:1.4.1'
+    compile 'com.google.code.gson:gson:2.7'
 }

@@ -1,5 +1,20 @@
 package com.battery;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 /**
  * Created by szl on 2018/1/31.
  * 描述电站
@@ -10,4 +25,127 @@ public class Station {
     private String address; // 电站地址
     private double longitude; // 经度
     private double latitude; // 纬度
+    private double distance; // 距离
+    private int queueTime; // 排队时间
+    private List<Station> stationList = new ArrayList<>(); // 电站列表
+
+    /**
+     * 根据id向服务器请求所有电站信息
+     * @param userId 用户id
+     * @param latch 用于保证线程已结束
+     */
+    public void load(int userId, final CountDownLatch latch) {
+        RequestBody body = new FormBody.Builder()
+                .add("id", Integer.toString(userId)).build();
+        HttpUtil.sendRequest(Constants.STATIONADDRESS, body, new okhttp3.Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("Station", "send");
+                String responseData = response.body().string();
+                stationList = new Gson().fromJson(responseData,
+                        new TypeToken<List<Station>>(){}.getType());
+                for (Station station : stationList) {
+                    Log.d("Station", "id:"+station.getId());
+                    Log.d("Station", "地址:"+station.getAddress());
+                    Log.d("Station", "经度:"+station.getLongitude());
+                    Log.d("Station", "纬度:"+station.getLatitude());
+                    Log.d("Station", "距离:"+station.getDistance());
+                    Log.d("Station", "排队时间:"+station.getQueueTime());
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 根据id向服务器请求所有电站信息，不必等待线程结束
+     * @param userId 用户id
+     */
+    public void load(int userId) {
+        RequestBody body = new FormBody.Builder()
+                .add("id", Integer.toString(userId)).build();
+        HttpUtil.sendRequest(Constants.STATIONADDRESS, body, new okhttp3.Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("Station", "send");
+                String responseData = response.body().string();
+                stationList = new Gson().fromJson(responseData,
+                        new TypeToken<List<Station>>(){}.getType());
+                for (Station station : stationList) {
+                    Log.d("Station", "id:"+station.getId());
+                    Log.d("Station", "地址:"+station.getAddress());
+                    Log.d("Station", "经度:"+station.getLongitude());
+                    Log.d("Station", "纬度:"+station.getLatitude());
+                    Log.d("Station", "距离:"+station.getDistance());
+                    Log.d("Station", "排队时间:"+station.getQueueTime());
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public int getQueueTime() {
+        return queueTime;
+    }
+
+    public void setQueueTime(int queueTime) {
+        this.queueTime = queueTime;
+    }
+
+    public List<Station> getStationList() {
+        return stationList;
+    }
+
+    public void setStationList(List<Station> stationList) {
+        this.stationList = stationList;
+    }
 }

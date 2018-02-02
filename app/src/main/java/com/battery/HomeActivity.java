@@ -1,12 +1,15 @@
 package com.battery;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -46,28 +49,5 @@ public class HomeActivity extends AppCompatActivity {
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        sendRequestTest(); // 测试与服务器的连接
-    }
-
-    /**
-     * 使用OkHttp测试与服务器的连接
-     */
-    private void sendRequestTest() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    OkHttpClient client = new OkHttpClient();
-                    RequestBody body = new FormBody.Builder().add("key", "值").build();
-                    Request request = new Request.Builder().url(Constants.NETWOROKIP + "/connect").post(body).build();
-                    Response response = client.newCall(request).execute();
-                    String responseData = response.body().string();
-                    System.out.println("HomeActivity:" + responseData);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 }
