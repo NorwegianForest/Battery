@@ -26,8 +26,6 @@ public class Database {
             user.setIsDefault(1);
             user.save();
         }
-
-        User loginUser = DataSupport.where("isDefault = ?", "1").findFirst(User.class);
     }
 
     /**

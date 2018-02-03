@@ -20,13 +20,15 @@ import okhttp3.Response;
 /**
  * Created by szl on 2018/1/31.
  * 描述用户
+ * 注释中带星号*的参数表示在数据中有对应的字段
  */
 
 public class User extends DataSupport {
-    private int id; // 与数据库对应的id
-    private String phone; // 手机号码
-    private String password; // 密码
-    private double balance; // 账户余额
+
+    private int id; // 与数据库对应的id *
+    private String phone; // 手机号码 *
+    private String password; // 密码 *
+    private double balance; // 账户余额 *
     private int isDefault; // 是否默认登录，1为是，0为否
     private List<Vehicle> vehicleList = new ArrayList<>(); // 用户所有爱车
 

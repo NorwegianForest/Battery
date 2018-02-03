@@ -18,13 +18,16 @@ import okhttp3.Response;
 /**
  * Created by szl on 2018/1/31.
  * 描述电站
+ * 注释中带星号*的参数表示在数据中有对应的字段
  */
 
 public class Station {
-    private int id; // 与数据库对应的id
-    private String address; // 电站地址
-    private double longitude; // 经度
-    private double latitude; // 纬度
+
+    private int id; // 与数据库对应的id *
+    private String name; // 电站名称 *
+    private String address; // 电站详细地址 *
+    private double longitude; // 经度 *
+    private double latitude; // 纬度 *
     private double distance; // 距离
     private int queueTime; // 排队时间
     private List<Station> stationList = new ArrayList<>(); // 电站列表
@@ -46,6 +49,7 @@ public class Station {
                         new TypeToken<List<Station>>(){}.getType());
                 for (Station station : stationList) {
                     Log.d("Station", "id:"+station.getId());
+                    Log.d("Station", "名称:"+station.getName());
                     Log.d("Station", "地址:"+station.getAddress());
                     Log.d("Station", "经度:"+station.getLongitude());
                     Log.d("Station", "纬度:"+station.getLatitude());
@@ -78,6 +82,7 @@ public class Station {
                         new TypeToken<List<Station>>(){}.getType());
                 for (Station station : stationList) {
                     Log.d("Station", "id:"+station.getId());
+                    Log.d("Station", "名称:"+station.getName());
                     Log.d("Station", "地址:"+station.getAddress());
                     Log.d("Station", "经度:"+station.getLongitude());
                     Log.d("Station", "纬度:"+station.getLatitude());
@@ -147,5 +152,13 @@ public class Station {
 
     public void setStationList(List<Station> stationList) {
         this.stationList = stationList;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
