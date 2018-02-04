@@ -27,9 +27,13 @@ public class Vehicle {
     private User admin; // 硬件设备的管理员用户 *
     private double longitude; // 经度 *
     private double latitude; // 纬度 *
+    private String date; // 投入使用的时间 *
     private Battery battery; // 汽车搭载的电池
     private double life; // 电池的续航里程
 
+    /**
+     * 根据电池id，向服务器请求车辆搭载的电池信息
+     */
     public void loadBattery() {
         RequestBody body = new FormBody.Builder()
                 .add("id", Integer.toString(id)).build();
@@ -132,5 +136,13 @@ public class Vehicle {
 
     public void setLife(double life) {
         this.life = life;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

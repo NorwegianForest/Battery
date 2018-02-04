@@ -8,11 +8,11 @@ import com.google.gson.reflect.TypeToken;
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -30,7 +30,11 @@ public class User extends DataSupport {
     private String password; // 密码 *
     private double balance; // 账户余额 *
     private int isDefault; // 是否默认登录，1为是，0为否
-    private List<Vehicle> vehicleList = new ArrayList<>(); // 用户所有爱车
+    private List<Vehicle> vehicleList; // 用户所有爱车
+    private List<Record> recordList; // 用户所有换电记录
+    private List<Appointment> appointmentList; // 用户所有预约记录
+    private List<Station> stationList; // 用户收藏的所有电站
+    private boolean isAppointment = false; // 该用户是否已有一次未完成预约
 
     /**
      * 使用OkHttp向服务器发送登录请求，并返回完整User信息
@@ -82,9 +86,9 @@ public class User extends DataSupport {
                     Log.d("User", "品牌:"+vehicle.getBrand());
                     Log.d("User", "型号:"+vehicle.getModel());
                     Log.d("User", "车牌:"+vehicle.getPlate());
-//                    Log.d("User", "管理员用户id:"+vehicle.getAdmin().getId());
                     Log.d("User", "经度:"+vehicle.getLongitude());
                     Log.d("User", "纬度:"+vehicle.getLatitude());
+                    Log.d("User", "投入使用的时间:"+vehicle.getDate());
                 }
                 latch.countDown();
             }
@@ -97,31 +101,149 @@ public class User extends DataSupport {
     }
 
     /**
-     * 根据用户id向服务器请求所有爱车数据，不必等待线程结束
+     * 根据用户id向服务器请求所有换电记录数据
      */
-    public void loadVehicle() {
+    public void loadRecord() {
         RequestBody body = new FormBody.Builder()
                 .add("id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.VEHICLEADDRESS, body, new okhttp3.Callback() {
+        HttpUtil.sendRequest(Constants.RECORDADDRESS,  body, new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
-                vehicleList = new Gson().fromJson(responseData, new TypeToken<List<Vehicle>>(){}.getType());
-                for (Vehicle vehicle : vehicleList) {
-                    Log.d("User", "id:"+vehicle.getId());
-                    Log.d("User", "编号:"+vehicle.getNumber());
-                    Log.d("User", "品牌:"+vehicle.getBrand());
-                    Log.d("User", "型号:"+vehicle.getModel());
-                    Log.d("User", "车牌:"+vehicle.getPlate());
-//                    Log.d("User", "管理员用户id:"+vehicle.getAdmin().getId());
-                    Log.d("User", "经度:"+vehicle.getLongitude());
-                    Log.d("User", "纬度:"+vehicle.getLatitude());
+                recordList = new Gson().fromJson(responseData, new TypeToken<List<Record>>(){}.getType());
+                for (Record record : recordList) {
+                    record.loadStation();
+                    record.loadOldBattery();
+                    record.loadNewBattery();
+                    Log.d("User:", "id:" + record.getId());
+                    Log.d("User:", "用户id:" + record.getUserId());
+                    Log.d("User:", "电站id:" + record.getStationId());
+                    Log.d("User:", "费用:" + record.getMoney());
+                    Log.d("User:", "旧电池id:" + record.getOldBatteryId());
+                    Log.d("User:", "新电池id:" + record.getNewBatteryId());
+                    Log.d("User:", "时间:" + record.getDate());
                 }
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 根据用户id，向服务器请求所有预约信息
+     */
+    public void loadAppointment() {
+        RequestBody body = new FormBody.Builder()
+                .add("id", Integer.toString(id)).build();
+        HttpUtil.sendRequest(Constants.APPOINTMENTADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                appointmentList = new Gson().fromJson(responseData, new TypeToken<List<Appointment>>(){}.getType());
+                for (Appointment appointment : appointmentList) {
+                    appointment.loadStation();
+                    appointment.loadNewBattery();
+                    if (appointment.getComplete() == 0) {
+                        isAppointment = true;
+                    }
+                    Log.d("User:", "预约时间:" +appointment.getDate());
+                    Log.d("User:", "是否完成:" + appointment.getComplete());
+                    Log.d("User:", "被换电车辆:" + appointment.getVehicleId());
+                }
+            }
+        });
+    }
+
+    /**
+     * 根据用户id，向服务器请求所有收藏的电站信息
+     */
+    public void loadStation() {
+        RequestBody body = new FormBody.Builder()
+                .add("user_id", Integer.toString(id))
+                .add("vehicle_id", Integer.toString(vehicleList.get(0).getId())).build();
+        HttpUtil.sendRequest(Constants.COLLECTIONADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                stationList = new Gson().fromJson(responseData,
+                        new TypeToken<List<Station>>(){}.getType());
+                for (Station station : stationList) {
+                    Log.d("User", "id:"+station.getId());
+                    Log.d("User", "名称:"+station.getName());
+                    Log.d("User", "地址:"+station.getAddress());
+                    Log.d("User", "经度:"+station.getLongitude());
+                    Log.d("User", "纬度:"+station.getLatitude());
+                    Log.d("User", "距离:"+station.getDistance());
+                    Log.d("User", "排队时间:"+station.getQueueTime());
+                }
+            }
+        });
+    }
+
+    /**
+     * 用户预约电站
+     * @param vehicleId 预约车辆id
+     * @param stationId 预约电站id
+     */
+    public void appointment(int vehicleId, int stationId) {
+        RequestBody body = new FormBody.Builder()
+                .add("user_id", Integer.toString(id))
+                .add("vehicle_id", Integer.toString(vehicleId))
+                .add("station_id", Integer.toString(stationId)).build();
+        HttpUtil.sendRequest(Constants.HANDLEAPPOINTMENT, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("预约失败")) {
+                    Log.d("responseData", responseData);
+                } else {
+                    AppointmentJson a = new Gson().fromJson(responseData, AppointmentJson.class);
+                    isAppointment = true;
+                    Log.d("User", "预约电池:" + a.getBatteryId());
+                    Log.d("User", "预约时间" + a.getDate());
+                }
+            }
+        });
+    }
+
+    /**
+     * 向服务器询问预约是否已完成
+     */
+    public void isComplete() {
+        RequestBody body = new FormBody.Builder()
+                .add("id", Integer.toString(id)).build();
+        HttpUtil.sendRequest(Constants.COMPLETEADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("未完成")) {
+
+                } else {
+                    isAppointment = false;
+                }
             }
         });
     }

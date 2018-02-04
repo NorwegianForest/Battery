@@ -30,20 +30,21 @@ public class Station {
     private double latitude; // 纬度 *
     private double distance; // 距离
     private int queueTime; // 排队时间
-    private List<Station> stationList = new ArrayList<>(); // 电站列表
+    private List<Station> stationList; // 电站列表
 
     /**
      * 根据id向服务器请求所有电站信息
      * @param userId 用户id
+     * @param vehicleId 用于计算距离的参考车辆id
      * @param latch 用于保证线程已结束
      */
-    public void load(int userId, final CountDownLatch latch) {
+    public void load(int userId, int vehicleId, final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(userId)).build();
+                .add("user_id", Integer.toString(userId))
+                .add("vehicle_id", Integer.toString(vehicleId)).build();
         HttpUtil.sendRequest(Constants.STATIONADDRESS, body, new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d("Station", "send");
                 String responseData = response.body().string();
                 stationList = new Gson().fromJson(responseData,
                         new TypeToken<List<Station>>(){}.getType());
@@ -57,38 +58,6 @@ public class Station {
                     Log.d("Station", "排队时间:"+station.getQueueTime());
                 }
                 latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    /**
-     * 根据id向服务器请求所有电站信息，不必等待线程结束
-     * @param userId 用户id
-     */
-    public void load(int userId) {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(userId)).build();
-        HttpUtil.sendRequest(Constants.STATIONADDRESS, body, new okhttp3.Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d("Station", "send");
-                String responseData = response.body().string();
-                stationList = new Gson().fromJson(responseData,
-                        new TypeToken<List<Station>>(){}.getType());
-                for (Station station : stationList) {
-                    Log.d("Station", "id:"+station.getId());
-                    Log.d("Station", "名称:"+station.getName());
-                    Log.d("Station", "地址:"+station.getAddress());
-                    Log.d("Station", "经度:"+station.getLongitude());
-                    Log.d("Station", "纬度:"+station.getLatitude());
-                    Log.d("Station", "距离:"+station.getDistance());
-                    Log.d("Station", "排队时间:"+station.getQueueTime());
-                }
             }
 
             @Override

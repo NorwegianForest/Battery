@@ -17,6 +17,7 @@ public class Battery {
     private double ratedCapacity; // 额定容量 *
     private double actualCapacity; // 实际容量 *
     private double residualCapacity; // 剩余容量 *
+    private String date; // 投入使用的日期 *
 
     public int getId() {
         return id;
@@ -88,5 +89,13 @@ public class Battery {
 
     public void setStationId(int stationId) {
         this.stationId = stationId;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
