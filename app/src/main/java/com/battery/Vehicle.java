@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;
 import okhttp3.FormBody;
@@ -24,31 +25,40 @@ public class Vehicle {
     private String brand; // 汽车的品牌 *
     private String model; // 汽车的型号 *
     private String plate; // 汽车的车牌号码 *
-    private User admin; // 硬件设备的管理员用户 *
+    private int userId; // 硬件设备的管理员用户 *
     private double longitude; // 经度 *
     private double latitude; // 纬度 *
     private String date; // 投入使用的时间 *
     private Battery battery; // 汽车搭载的电池
     private double life; // 电池的续航里程
 
-    /**
-     * 根据电池id，向服务器请求车辆搭载的电池信息
-     */
-    public void loadBattery() {
+    public void load(final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.BATTERYADDRESS, body, new okhttp3.Callback() {
+                .add("vehicle_id", Integer.toString(id)).build();
+        HttpUtil.sendRequest(Constants.VEHICLEADDRESS, body, new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
-                battery = new Gson().fromJson(responseData, Battery.class);
-                Log.d("Vehicle:", "id:"+battery.getId());
-                Log.d("Vehicle:", "编号:" + battery.getNumber());
-                Log.d("Vehicle:", "型号:"+battery.getModel());
-                Log.d("Vehicle:", "电量:"+battery.getElectricity());
-                Log.d("Vehicle:", "额定容量:"+battery.getRatedCapacity());
-                Log.d("Vehicle:", "实际容量:"+battery.getActualCapacity());
-                Log.d("Vehicle:", "剩余容量:"+battery.getResidualCapacity());
+                if (response.equals("无结果")) {
+
+                } else {
+                    Vehicle vehicle = new Gson().fromJson(responseData, Vehicle.class);
+                    id = vehicle.getId();
+                    number = vehicle.getNumber();
+                    brand = vehicle.getBrand();
+                    model = vehicle.getModel();
+                    plate = vehicle.getPlate();
+                    userId = vehicle.getUserId();
+                    longitude = vehicle.getLongitude();
+                    latitude = vehicle.getLatitude();
+                    date = vehicle.getDate();
+                    Log.d("Vehicle", "编号:" + number);
+
+                    battery = new Battery();
+                    battery.setVehicleId(id);
+                    battery.loadByVehicleId(); // Battery对象根据vehicleId完善自身其他数据
+                }
+                latch.countDown();
             }
 
             @Override
@@ -98,12 +108,12 @@ public class Vehicle {
         this.plate = plate;
     }
 
-    public User getAdmin() {
-        return admin;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setAdmin(User admin) {
-        this.admin = admin;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public double getLongitude() {

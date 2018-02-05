@@ -36,63 +36,27 @@ public class Record {
      * 根据电站id向服务器请求该电站的数据
      */
     public void loadStation() {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(stationId)).build();
-        HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                station = new Gson().fromJson(responseData, Station.class);
-                Log.d("Record", "电站名:"+station.getName());
-            }
-        });
+        station = new Station();
+        station.setId(stationId);
+        station.load();
     }
 
     /**
      * 根据电池id，向服务器请求旧电池数据
      */
     public void loadOldBattery() {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(oldBatteryId)).build();
-        HttpUtil.sendRequest(Constants.BATTERYBYIDADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                oldBattery = new Gson().fromJson(responseData, Battery.class);
-                Log.d("Record", "旧电池:"+oldBattery.getNumber());
-            }
-        });
+        oldBattery = new Battery();
+        oldBattery.setId(oldBatteryId);
+        oldBattery.load();
     }
 
     /**
      * 根据电池id，向服务器请求新电池数据
      */
     public void loadNewBattery() {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(newBatteryId)).build();
-        HttpUtil.sendRequest(Constants.BATTERYBYIDADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                newBattery = new Gson().fromJson(responseData, Battery.class);
-                Log.d("Record", "新电池:"+newBattery.getNumber());
-            }
-        });
+        newBattery = new Battery();
+        newBattery.setId(newBatteryId);
+        newBattery.load();
     }
 
     public int getId() {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -33,12 +34,12 @@ public class Station {
     private List<Station> stationList; // 电站列表
 
     /**
-     * 根据id向服务器请求所有电站信息
+     * 根据用户id和车辆id向服务器请求附近所有电站信息
      * @param userId 用户id
      * @param vehicleId 用于计算距离的参考车辆id
      * @param latch 用于保证线程已结束
      */
-    public void load(int userId, int vehicleId, final CountDownLatch latch) {
+    public void loadAround(int userId, int vehicleId, final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
                 .add("user_id", Integer.toString(userId))
                 .add("vehicle_id", Integer.toString(vehicleId)).build();
@@ -63,6 +64,36 @@ public class Station {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 根据电站id向服务器请求完善自身数据
+     */
+    public void load() {
+        RequestBody body = new FormBody.Builder()
+                .add("station_id", Integer.toString(id)).build();
+        HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    Station station = new Gson().fromJson(responseData, Station.class);
+                    id = station.getId();
+                    name = station.getName();
+                    address = station.getAddress();
+                    longitude = station.getLongitude();
+                    latitude = station.getLatitude();
+                    Log.d("Station", "电站名称:" + name);
+                }
             }
         });
     }

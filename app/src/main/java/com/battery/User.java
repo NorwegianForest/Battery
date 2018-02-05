@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -74,21 +75,32 @@ public class User extends DataSupport {
      */
     public void loadVehicle(final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.VEHICLEADDRESS, body, new okhttp3.Callback() {
+                .add("user_id", Integer.toString(id)).build();
+        HttpUtil.sendRequest(Constants.USERVEHICLE, body, new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
-                vehicleList = new Gson().fromJson(responseData, new TypeToken<List<Vehicle>>(){}.getType());
-                for (Vehicle vehicle : vehicleList) {
-                    Log.d("User", "id:"+vehicle.getId());
-                    Log.d("User", "编号:"+vehicle.getNumber());
-                    Log.d("User", "品牌:"+vehicle.getBrand());
-                    Log.d("User", "型号:"+vehicle.getModel());
-                    Log.d("User", "车牌:"+vehicle.getPlate());
-                    Log.d("User", "经度:"+vehicle.getLongitude());
-                    Log.d("User", "纬度:"+vehicle.getLatitude());
-                    Log.d("User", "投入使用的时间:"+vehicle.getDate());
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    List<UserVehicle> uvList = new Gson().fromJson(responseData
+                            , new TypeToken<List<UserVehicle>>(){}.getType());
+                    vehicleList = new ArrayList<>();
+                    // 等待Vehicle对象根据id完善自身其他数据
+                    CountDownLatch l1 = new CountDownLatch(uvList.size());
+                    for (UserVehicle uv : uvList) {
+                        Vehicle vehicle = new Vehicle();
+                        vehicle.setId(uv.getVehicleId());
+                        Log.d("User", "获取车辆id:" + vehicle.getId());
+                        vehicle.load(l1);
+                        vehicleList.add(vehicle);
+                    }
+
+                    try {
+                        l1.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 latch.countDown();
             }
@@ -105,23 +117,28 @@ public class User extends DataSupport {
      */
     public void loadRecord() {
         RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(id)).build();
+                .add("user_id", Integer.toString(id)).build();
         HttpUtil.sendRequest(Constants.RECORDADDRESS,  body, new okhttp3.Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
-                recordList = new Gson().fromJson(responseData, new TypeToken<List<Record>>(){}.getType());
-                for (Record record : recordList) {
-                    record.loadStation();
-                    record.loadOldBattery();
-                    record.loadNewBattery();
-                    Log.d("User:", "id:" + record.getId());
-                    Log.d("User:", "用户id:" + record.getUserId());
-                    Log.d("User:", "电站id:" + record.getStationId());
-                    Log.d("User:", "费用:" + record.getMoney());
-                    Log.d("User:", "旧电池id:" + record.getOldBatteryId());
-                    Log.d("User:", "新电池id:" + record.getNewBatteryId());
-                    Log.d("User:", "时间:" + record.getDate());
+                if (responseData.equals("无结果")) {
+                    Log.d("User", "换电数据无结果");
+                } else {
+                    recordList = new Gson().fromJson(responseData, new TypeToken<List<Record>>() {
+                    }.getType());
+                    for (Record record : recordList) {
+                        record.loadStation();
+                        record.loadOldBattery();
+                        record.loadNewBattery();
+                        Log.d("User:", "id:" + record.getId());
+                        Log.d("User:", "用户id:" + record.getUserId());
+                        Log.d("User:", "电站id:" + record.getStationId());
+                        Log.d("User:", "费用:" + record.getMoney());
+                        Log.d("User:", "旧电池id:" + record.getOldBatteryId());
+                        Log.d("User:", "新电池id:" + record.getNewBatteryId());
+                        Log.d("User:", "时间:" + record.getDate());
+                    }
                 }
             }
 
@@ -137,7 +154,7 @@ public class User extends DataSupport {
      */
     public void loadAppointment() {
         RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(id)).build();
+                .add("user_id", Integer.toString(id)).build();
         HttpUtil.sendRequest(Constants.APPOINTMENTADDRESS, body, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

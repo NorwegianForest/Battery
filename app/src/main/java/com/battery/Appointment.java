@@ -34,43 +34,20 @@ public class Appointment {
      * 根据电站id，向服务器请求该电站数据
      */
     public void loadStation() {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(stationId)).build();
-        HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                station = new Gson().fromJson(responseData, Station.class);
-                Log.d("Appointment", "电站名:"+station.getName());
-            }
-        });
+        station = new Station();
+        station.setId(stationId);
+        station.load();
     }
 
     /**
      * 根据电池id，向服务器请求新电池数据
      */
     public void loadNewBattery() {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(newBatteryId)).build();
-        HttpUtil.sendRequest(Constants.BATTERYBYIDADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                battery = new Gson().fromJson(responseData, Battery.class);
-                Log.d("Appointment", "新电池:"+battery.getNumber());
-            }
-        });
+        battery = new Battery();
+        battery.setId(newBatteryId);
+        battery.load();
     }
+
     public int getId() {
         return id;
     }

@@ -14,6 +14,7 @@ public class Database {
 
     /**
      * 创建默认用户，手机号18402884427，密码123456
+     * 如果找到默认用户则不进行任何操作，如果未找到则添加默认用户
      */
     public static void initUser() {
         User alreadyUser = DataSupport.where("phone = ?", "18402884427").findFirst(User.class);
@@ -29,7 +30,7 @@ public class Database {
     }
 
     /**
-     * 获取本地数据库存储的用户的手机号密码
+     * 获取本地数据库存储的默认登录用户的手机号密码
      * @return 本地用户对象
      */
     public static User getLocalUser() {

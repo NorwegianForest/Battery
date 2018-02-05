@@ -1,5 +1,17 @@
 package com.battery;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 /**
  * Created by szl on 2018/1/31.
  * 描述电池
@@ -18,6 +30,48 @@ public class Battery {
     private double actualCapacity; // 实际容量 *
     private double residualCapacity; // 剩余容量 *
     private String date; // 投入使用的日期 *
+
+    public void loadByVehicleId() {
+        RequestBody body = new FormBody.Builder()
+                .add("vehicle_id", Integer.toString(vehicleId)).build();
+        sendRequest(Constants.BATTERYADDRESS, body);
+    }
+
+    public void load() {
+        RequestBody body = new FormBody.Builder()
+                .add("battery_id", Integer.toString(id)).build();
+        sendRequest(Constants.BATTERYBYIDADDRESS, body);
+    }
+
+    private void sendRequest(String address, RequestBody body) {
+         HttpUtil.sendRequest(address, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    Battery battery = new Gson().fromJson(responseData, Battery.class);
+                    id = battery.getId();
+                    number = battery.getNumber();
+                    model = battery.getModel();
+                    vehicleId = battery.getVehicleId();
+                    stationId = battery.getStationId();
+                    electricity = battery.getElectricity();
+                    ratedCapacity = battery.getRatedCapacity();
+                    actualCapacity = battery.getActualCapacity();
+                    residualCapacity = battery.getResidualCapacity();
+                    date = battery.getDate();
+                    Log.d("Battery", "电量:" + electricity);
+                }
+            }
+        });
+    }
 
     public int getId() {
         return id;
