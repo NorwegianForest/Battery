@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.lenovo.battery.AddCarActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbaradd"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <RelativeLayout
+        android:id="@+id/car"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbaradd"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="10dp">
+        <TextView
+            android:text="汽车型号："
+            android:id="@+id/one"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40px" />
+        <EditText
+            android:id="@+id/account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/one"
+            android:textSize="24px"
+            android:layout_marginLeft="30dp"
+            android:minWidth="420px" />
+
+        <!--android:hint="车牌号"-->
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/battery"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/car"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp">
+        <TextView
+            android:text="电池型号："
+            android:id="@+id/two"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40px" />
+        <EditText
+            android:id="@+id/pwd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/two"
+            android:textSize="24px"
+            android:layout_marginLeft="30dp"
+            android:minWidth="420px" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/priority"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/battery"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp">
+        <TextView
+            android:text="权限管理："
+            android:id="@+id/three"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="40px" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/rg"
+            android:layout_toRightOf="@+id/three"
+            android:layout_marginLeft="10dp">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="管理权限"
+                android:id="@+id/rb1"
+                android:layout_marginRight="30dp" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="普通权限"
+                android:id="@+id/rb2"
+                android:layout_marginRight="30dp"/>
+
+        </RadioGroup>
+
+    </RelativeLayout>
+    <Button
+        android:id="@+id/addcar"
+        android:layout_below="@+id/priority"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="添加"
+        android:layout_marginLeft="130dp"
+        android:layout_marginTop="30dp"
+        android:textSize="20sp"
+        android:background="@color/colorPrimary"/>
+
+</RelativeLayout>

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -38,7 +39,13 @@ public class Record {
     public void loadStation() {
         station = new Station();
         station.setId(stationId);
-        station.load();
+        CountDownLatch latch = new CountDownLatch(1);
+        station.load(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -47,7 +54,13 @@ public class Record {
     public void loadOldBattery() {
         oldBattery = new Battery();
         oldBattery.setId(oldBatteryId);
-        oldBattery.load();
+        CountDownLatch latch = new CountDownLatch(1);
+        oldBattery.load(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -56,7 +69,13 @@ public class Record {
     public void loadNewBattery() {
         newBattery = new Battery();
         newBattery.setId(newBatteryId);
-        newBattery.load();
+        CountDownLatch latch = new CountDownLatch(1);
+        newBattery.load(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getId() {

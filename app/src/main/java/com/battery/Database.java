@@ -34,7 +34,6 @@ public class Database {
      * @return 本地用户对象
      */
     public static User getLocalUser() {
-        User localUser = DataSupport.where("isDefault = ?", "1").findFirst(User.class);
-        return localUser;
+        return DataSupport.where("isDefault = ?", "1").findFirst(User.class);
     }
 }

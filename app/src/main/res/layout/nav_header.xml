@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:padding="10dp"
+    android:background="@drawable/shutterstock_183893855">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/nav_icon_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@mipmap/profile"
+        android:layout_centerInParent="true"
+        tools:ignore="VectorDrawableCompat" />
+    <TextView
+        android:id="@+id/nav_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Tony"
+        android:textColor="#FFF"
+        android:shadowRadius="5"
+        android:shadowDy="3"
+        android:shadowDx="3"
+        android:shadowColor="#000"
+        android:textSize="14sp"/>
+</RelativeLayout>

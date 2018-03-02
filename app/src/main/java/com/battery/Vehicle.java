@@ -56,7 +56,13 @@ public class Vehicle {
 
                     battery = new Battery();
                     battery.setVehicleId(id);
-                    battery.loadByVehicleId(); // Battery对象根据vehicleId完善自身其他数据
+                    CountDownLatch latch1 = new CountDownLatch(1);
+                    battery.loadByVehicleId(latch1); // Battery对象根据vehicleId完善自身其他数据
+                    try {
+                        latch1.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 latch.countDown();
             }

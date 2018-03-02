@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.lenovo.battery.ReserveActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarreserve"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    </android.support.v7.widget.Toolbar>
+    <ImageView
+        android:id="@+id/image"
+        android:layout_height="150dp"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/toolbarreserve"/>
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/image"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="18dp"
+        android:paddingRight="5dp"
+        android:id="@+id/first"
+        android:background="@drawable/line"
+        android:layout_height="50dp">
+        <TextView
+            android:text="电站名字"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:id="@+id/one"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/one"
+            android:layout_marginLeft="50dp"
+            android:textSize="18dp"
+            android:id="@+id/name"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/first"
+        android:id="@+id/second"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:background="@drawable/line"
+        android:layout_height="50dp">
+        <TextView
+            android:text="详细地址"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:paddingTop="18dp"
+            android:id="@+id/two"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/two"
+            android:layout_marginLeft="50dp"
+            android:paddingTop="10dp"
+            android:textSize="14dp"
+            android:id="@+id/address"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/second"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="18dp"
+        android:paddingRight="5dp"
+        android:id="@+id/third"
+        android:background="@drawable/line"
+        android:layout_height="50dp">
+        <TextView
+            android:text="预约结果"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:id="@+id/three"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/three"
+            android:layout_marginLeft="50dp"
+            android:textSize="18dp"
+            android:id="@+id/result"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/third"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="18dp"
+        android:paddingRight="5dp"
+        android:id="@+id/fouth"
+        android:background="@drawable/line"
+        android:layout_height="50dp">
+        <TextView
+            android:text="预约时间"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:id="@+id/four"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/four"
+            android:layout_marginLeft="50dp"
+            android:textSize="18dp"
+            android:id="@+id/time"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/fouth"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="18dp"
+        android:paddingRight="5dp"
+        android:id="@+id/fifth"
+        android:background="@drawable/line"
+        android:layout_height="50dp">
+        <TextView
+            android:text="电池收费/个"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:id="@+id/five"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/five"
+            android:layout_marginLeft="60dp"
+            android:textSize="18dp"
+            android:id="@+id/c"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/fifth"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="18dp"
+        android:paddingRight="5dp"
+        android:id="@+id/sixth"
+        android:background="@drawable/line"
+        android:layout_height="50dp">
+        <TextView
+            android:text="充电桩收费/小时"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:id="@+id/six"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/six"
+            android:layout_marginLeft="22dp"
+            android:textSize="18dp"
+            android:id="@+id/d"
+            android:layout_weight="1" />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_below="@+id/sixth"
+        android:layout_height="60dp"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp">
+        <Button
+            android:id="@+id/collect"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="收藏"
+            android:textSize="18dp"
+            android:layout_marginLeft="10dp"
+            android:background="@color/colorPrimary"/>
+        <Button
+            android:id="@+id/reserve_delete"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="取消预约"
+            android:layout_toRightOf="@+id/collect"
+            android:textSize="18dp"
+            android:layout_marginLeft="20dp"
+            android:background="@color/colorPrimary"/>
+        <Button
+            android:id="@+id/reserve_finish"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="订单完成"
+            android:layout_toRightOf="@+id/reserve_delete"
+            android:textSize="18dp"
+            android:layout_marginLeft="20dp"
+            android:background="@color/colorPrimary"/>
+    </RelativeLayout>
+
+</RelativeLayout>

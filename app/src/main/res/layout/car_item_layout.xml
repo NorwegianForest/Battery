@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/line"
+    android:layout_marginRight="5dp"
+    android:layout_marginLeft="5dp"
+    android:paddingBottom="5dp"
+    android:paddingTop="18dp">
+    <RelativeLayout
+        android:id="@+id/one"
+        android:layout_width="80dp"
+        android:layout_height="80dp">
+        <TextView
+            android:id="@+id/car_elec"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:textSize="20sp"
+            android:layout_gravity="center_horizontal" />
+        <com.example.lenovo.battery.BatteryView
+            android:id="@+id/battery_view"
+            android:layout_width="80dp"
+            android:layout_height="60dp"
+            android:layout_below="@+id/car_elec"
+            android:layout_marginLeft="5dp">
+        </com.example.lenovo.battery.BatteryView>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/one"
+        android:layout_marginLeft="10dp">
+
+        <TextView
+            android:id="@+id/car_name"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="5dp"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/car_priority"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_below="@+id/car_name"
+            android:layout_gravity="left"
+            android:layout_marginTop="5dp"/>
+    </RelativeLayout>
+
+</RelativeLayout>

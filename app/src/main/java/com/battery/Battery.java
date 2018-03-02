@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -35,6 +36,18 @@ public class Battery {
         RequestBody body = new FormBody.Builder()
                 .add("vehicle_id", Integer.toString(vehicleId)).build();
         sendRequest(Constants.BATTERYADDRESS, body);
+    }
+
+    public void loadByVehicleId(CountDownLatch latch) {
+        RequestBody body = new FormBody.Builder()
+                .add("vehicle_id", Integer.toString(vehicleId)).build();
+        sendRequest(Constants.BATTERYADDRESS, body, latch);
+    }
+
+    public void load(CountDownLatch latch) {
+        RequestBody body = new FormBody.Builder()
+                .add("battery_id", Integer.toString(id)).build();
+        sendRequest(Constants.BATTERYBYIDADDRESS, body, latch);
     }
 
     public void load() {
@@ -68,6 +81,38 @@ public class Battery {
                     residualCapacity = battery.getResidualCapacity();
                     date = battery.getDate();
                     Log.d("Battery", "电量:" + electricity);
+                }
+            }
+        });
+    }
+
+    private void sendRequest(String address, RequestBody body, final CountDownLatch latch) {
+         HttpUtil.sendRequest(address, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                latch.countDown();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    Battery battery = new Gson().fromJson(responseData, Battery.class);
+                    id = battery.getId();
+                    number = battery.getNumber();
+                    model = battery.getModel();
+                    vehicleId = battery.getVehicleId();
+                    stationId = battery.getStationId();
+                    electricity = battery.getElectricity();
+                    ratedCapacity = battery.getRatedCapacity();
+                    actualCapacity = battery.getActualCapacity();
+                    residualCapacity = battery.getResidualCapacity();
+                    date = battery.getDate();
+                    Log.d("Battery", "电量:" + electricity);
+                    latch.countDown();
                 }
             }
         });

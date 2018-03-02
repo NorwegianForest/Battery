@@ -32,6 +32,8 @@ public class Station {
     private double distance; // 距离
     private int queueTime; // 排队时间
     private List<Station> stationList; // 电站列表
+    private boolean isAppointment; // 是否已经预约，针对确知用户id的情况
+    private boolean isCollection; // 是否已经收藏，针对确知用户id的情况
 
     /**
      * 根据用户id和车辆id向服务器请求附近所有电站信息
@@ -50,13 +52,6 @@ public class Station {
                 stationList = new Gson().fromJson(responseData,
                         new TypeToken<List<Station>>(){}.getType());
                 for (Station station : stationList) {
-                    Log.d("Station", "id:"+station.getId());
-                    Log.d("Station", "名称:"+station.getName());
-                    Log.d("Station", "地址:"+station.getAddress());
-                    Log.d("Station", "经度:"+station.getLongitude());
-                    Log.d("Station", "纬度:"+station.getLatitude());
-                    Log.d("Station", "距离:"+station.getDistance());
-                    Log.d("Station", "排队时间:"+station.getQueueTime());
                 }
                 latch.countDown();
             }
@@ -64,6 +59,7 @@ public class Station {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
     }
@@ -94,6 +90,35 @@ public class Station {
                     latitude = station.getLatitude();
                     Log.d("Station", "电站名称:" + name);
                 }
+            }
+        });
+    }
+
+    public void load(final CountDownLatch latch) {
+        RequestBody body = new FormBody.Builder()
+                .add("station_id", Integer.toString(id)).build();
+        HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                latch.countDown();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    Station station = new Gson().fromJson(responseData, Station.class);
+                    id = station.getId();
+                    name = station.getName();
+                    address = station.getAddress();
+                    longitude = station.getLongitude();
+                    latitude = station.getLatitude();
+                    Log.d("Station", "电站名称:" + name);
+                }
+                latch.countDown();
             }
         });
     }
@@ -160,5 +185,21 @@ public class Station {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isAppointment() {
+        return isAppointment;
+    }
+
+    public void setAppointment(boolean appointment) {
+        isAppointment = appointment;
+    }
+
+    public boolean isCollection() {
+        return isCollection;
+    }
+
+    public void setCollection(boolean collection) {
+        isCollection = collection;
     }
 }

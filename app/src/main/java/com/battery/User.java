@@ -65,6 +65,34 @@ public class User extends DataSupport {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                latch.countDown();
+            }
+        });
+    }
+
+    public void login() {
+        RequestBody body = new FormBody.Builder()
+                .add("phone", phone)
+                .add("password", password).build();
+        HttpUtil.sendRequest(Constants.LOGINADDRESS, body, new okhttp3.Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("illegal")) {
+                    Log.d("User", phone + "登录失败");
+                } else {
+                    User user = new Gson().fromJson(responseData, User.class);
+                    id = user.getId();
+                    phone = user.getPhone();
+                    password = user.getPassword();
+                    balance = user.getBalance();
+                    Log.d("User", phone + "登录成功");
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -108,6 +136,7 @@ public class User extends DataSupport {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
     }
@@ -152,19 +181,21 @@ public class User extends DataSupport {
     /**
      * 根据用户id，向服务器请求所有预约信息
      */
-    public void loadAppointment() {
+    public void loadAppointment(final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
                 .add("user_id", Integer.toString(id)).build();
         HttpUtil.sendRequest(Constants.APPOINTMENTADDRESS, body, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                latch.countDown();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
                 appointmentList = new Gson().fromJson(responseData, new TypeToken<List<Appointment>>(){}.getType());
+                isAppointment = false;
                 for (Appointment appointment : appointmentList) {
                     appointment.loadStation();
                     appointment.loadNewBattery();
@@ -175,6 +206,7 @@ public class User extends DataSupport {
                     Log.d("User:", "是否完成:" + appointment.getComplete());
                     Log.d("User:", "被换电车辆:" + appointment.getVehicleId());
                 }
+                latch.countDown();
             }
         });
     }
@@ -182,7 +214,7 @@ public class User extends DataSupport {
     /**
      * 根据用户id，向服务器请求所有收藏的电站信息
      */
-    public void loadStation() {
+    public void loadStation(final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
                 .add("user_id", Integer.toString(id))
                 .add("vehicle_id", Integer.toString(vehicleList.get(0).getId())).build();
@@ -190,6 +222,7 @@ public class User extends DataSupport {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                latch.countDown();
             }
 
             @Override
@@ -206,6 +239,7 @@ public class User extends DataSupport {
                     Log.d("User", "距离:"+station.getDistance());
                     Log.d("User", "排队时间:"+station.getQueueTime());
                 }
+                latch.countDown();
             }
         });
     }
@@ -311,5 +345,13 @@ public class User extends DataSupport {
 
     public void setVehicleList(List<Vehicle> vehicleList) {
         this.vehicleList = vehicleList;
+    }
+
+    public boolean isAppointment() {
+        return isAppointment;
+    }
+
+    public void setAppointment(boolean appointment) {
+        isAppointment = appointment;
     }
 }

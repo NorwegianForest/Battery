@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="10dp"
+    app:cardCornerRadius="4dp">
+
+    <LinearLayout
+        android:padding="@dimen/activity_vertical_margin"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_directions_car_black_36dp"/>
+            <LinearLayout
+                android:paddingLeft="16dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/vehicle_item_brand"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:text="特斯拉-Model S"/>
+                <TextView
+                    android:id="@+id/vehicle_item_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="编号:V1000001"/>
+                <TextView
+                    android:id="@+id/vehicle_item_plate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="车牌:川A88888"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_battery_full_black_36dp"/>
+            <LinearLayout
+                android:paddingLeft="16dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/vehicle_item_battery"
+                    android:layout_marginBottom="5dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="电量:100%"/>
+                <TextView
+                    android:id="@+id/vehicle_item_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="型号:NCR18650A"/>
+                <TextView
+                    android:id="@+id/vehicle_item_battery_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="编号:B1000001"/>
+                <TextView
+                    android:id="@+id/vehicle_item_mileage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="剩余里程:500km"/>
+                <TextView
+                    android:id="@+id/vehicle_item_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="充电需:10min"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</android.support.v7.widget.CardView>

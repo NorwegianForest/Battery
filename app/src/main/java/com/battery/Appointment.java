@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -25,10 +26,12 @@ public class Appointment {
     private int vehicleId; // 将要被换电的车辆id *
     private int stationId; // 预约电站id *
     private int newBatteryId; // 新电池id *
+    private int time; // 排队需要的时间 *
     private String date; // 预约时间 *
     private int complete; // 是否完成状态 *
     private Station station; // 接受预约的电站
     private Battery battery; // 为用户准备的电池
+    private Double distance; // 预约的电站和车辆的距离
 
     /**
      * 根据电站id，向服务器请求该电站数据
@@ -36,7 +39,13 @@ public class Appointment {
     public void loadStation() {
         station = new Station();
         station.setId(stationId);
-        station.load();
+        CountDownLatch latch = new CountDownLatch(1);
+        station.load(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -118,5 +127,21 @@ public class Appointment {
 
     public void setBattery(Battery battery) {
         this.battery = battery;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 }
