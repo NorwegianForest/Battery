@@ -1,20 +1,20 @@
-# 共享电池APP项目
+﻿# 共享电池APP项目
 - 服务器详见BatteryServer项目
 
 ## 产品介绍
 - 本应用为电动汽车车主用户提供便捷的续航服务
 - 主要体现在智能引导车主进行电池更换
 - 截图一览
-- ![](showImages/splash.png)
-- ![](showImages/first.png)
-- ![](showImages/second.png)
-- ![](showImages/station.png)
-- ![](showImages/user.png)
-- ![](showImages/drawer.png)
-- ![](showImages/balance.png)
-- ![](showImages/collection.png)
-- ![](showImages/record.png)
-- ![](showImages/vehicle.png)
+- <img src="showImages/splash.png" width=360 height=640 />
+- <img src="showImages/first.png" width=360 height=640 />
+- <img src="showImages/second.png" width=360 height=640 />
+- <img src="showImages/station.png" width=360 height=640 />
+- <img src="showImages/user.png" width=360 height=640 />
+- <img src="showImages/drawer.png" width=360 height=640 />
+- <img src="showImages/balance.png" width=360 height=640 />
+- <img src="showImages/collection.png" width=360 height=640 />
+- <img src="showImages/record.png" width=360 height=640 />
+- <img src="showImages/vehicle.png" width=360 height=640 />
 
 ### 目的与意义
 - 在能源限制，环境污染的大背景下，节能环保的新能源电动汽车应运而出，展示出强大的发展潜力。但由于目前各类电动汽车充电
@@ -78,4 +78,4 @@ Better Place（BP）公司较早采用了这种充换电模式，其业务模式
 - 更新的太多，记不全了……
 
 ### 3月8日更新
-- 整理代码和注释
+- 整理代码、注释和文档
