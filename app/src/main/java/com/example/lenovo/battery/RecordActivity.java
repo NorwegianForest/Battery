@@ -34,6 +34,8 @@ public class RecordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+
+        // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
 
         Toolbar toolbar = findViewById(R.id.record_toolbar);
@@ -56,6 +58,10 @@ public class RecordActivity extends AppCompatActivity {
         loadRecord(id);
     }
 
+    /**
+     * 获取用户所有换电记录数据，并更新UI
+     * @param id 用户id
+     */
     private void loadRecord(String id) {
         RequestBody body = new FormBody.Builder().add("user_id", id).build();
         HttpUtil.sendRequest(Constants.RECORDADDRESS,  body, new okhttp3.Callback() {
@@ -67,6 +73,8 @@ public class RecordActivity extends AppCompatActivity {
                 } else {
                     recordList = new Gson().fromJson(responseData, new TypeToken<List<Record>>() {}.getType());
                     for (Record record : recordList) {
+                        // 以下方法都通过CountDownLatch类控制，等待线程结束
+                        // 否则会出现数据获取迟滞与UI更新的情况
                         record.loadStation();
                         record.loadOldBattery();
                         record.loadNewBattery();
@@ -86,10 +94,12 @@ public class RecordActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新换电记录数据的线程
+     */
     Runnable setListRunnable = new  Runnable(){
         @Override
         public void run() {
-            //更新界面
             RecordAdapter adapter = new RecordAdapter(recordList);
             recyclerView.setAdapter(adapter);
         }

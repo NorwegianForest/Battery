@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+/**
+ * 若用户当前没有预约，点击导航菜单中的预约选项后，即转跳到此活动
+ */
+
 public class NoAppointmentActivity extends AppCompatActivity {
 
     @Override

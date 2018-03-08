@@ -87,8 +87,11 @@ public class UserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
+
+        // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
 
+        // 找到控件对应的对象
         findView();
 
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing);
@@ -101,6 +104,7 @@ public class UserActivity extends AppCompatActivity {
         ImageView blurImageView = findViewById(R.id.h_back);
         ImageView avatarImageView = findViewById(R.id.h_head);
 
+        // 处理图像
         Glide.with(this).load(R.drawable.profile).bitmapTransform(new BlurTransformation(this,25),new CenterCrop(this))
                 .into(blurImageView);
         Glide.with(this).load(R.drawable.profile).bitmapTransform(new CropCircleTransformation(this))
@@ -128,15 +132,21 @@ public class UserActivity extends AppCompatActivity {
 
         handler = new Handler();
 
+        // 加载各卡片的数据
         loadVehicleCard();
         loadAppointmentCard();
         loadRecordCard();
         loadCollectionCard();
         loadStationCard();
 
+        // 卡片的点击事件
         addListenerForCards();
     }
 
+    /**
+     * 获取车辆数据，并更新UI卡片
+     * 该卡片只显示用户的参考车辆的信息
+     */
     private void loadVehicleCard() {
         RequestBody body = new FormBody.Builder().add("user_id", userId).build();
         HttpUtil.sendRequest(Constants.REFERENCEADDRESS, body, new okhttp3.Callback() {
@@ -170,6 +180,9 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新车辆数据卡片的线程
+     */
     Runnable runVehicleCard = new  Runnable(){
         @Override
         public void run() {
@@ -188,6 +201,11 @@ public class UserActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 获取预约信息，并更新UI卡片
+     * 该卡片只显示用户当前的预约信息
+     * 如无预约则显示 暂无预约
+     */
     private void loadAppointmentCard() {
         RequestBody body = new FormBody.Builder().add("user_id", userId).build();
         HttpUtil.sendRequest(Constants.APPOINTMENTADDRESS, body, new Callback() {
@@ -220,6 +238,9 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新预约数据卡片的线程
+     */
     Runnable runAppointmentCard = new  Runnable() {
         @Override
         public void run() {
@@ -237,6 +258,10 @@ public class UserActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 获取换电记录数据，并更新UI卡片
+     * 该卡片只显示用户的最近一次换电数据
+     */
     private void loadRecordCard() {
         RequestBody body = new FormBody.Builder().add("user_id", userId).build();
         HttpUtil.sendRequest(Constants.RECORDADDRESS,  body, new okhttp3.Callback() {
@@ -266,6 +291,9 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新换电记录数据卡片的线程
+     */
     Runnable runRecordCard = new  Runnable() {
         @Override
         public void run() {
@@ -277,6 +305,10 @@ public class UserActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 获取收藏电站数据，并更新UI卡片
+     * 该卡片只显示用户的其中一个收藏电站的名称，并显示收藏电站数目
+     */
     private void loadCollectionCard() {
         RequestBody body = new FormBody.Builder().add("user_id", userId).build();
         HttpUtil.sendRequest(Constants.COLLECTIONADDRESS, body, new Callback() {
@@ -301,6 +333,9 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新收藏电站数据卡片的线程
+     */
     Runnable runCollectionCard = new Runnable() {
         @Override
         public void run() {
@@ -334,6 +369,9 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新推荐电站数据卡片的线程
+     */
     Runnable runStationCard = new Runnable() {
         @Override
         public void run() {
@@ -351,6 +389,9 @@ public class UserActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 为各卡片添加响应的监听器，使其能转跳到各详细页面
+     */
     private void addListenerForCards() {
         batteryCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -413,6 +454,9 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 为所有控件声明找到其对应的对象
+     */
     private void findView() {
         batteryCard = findViewById(R.id.battery_card);
         balanceCard = findViewById(R.id.balance_card);

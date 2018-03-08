@@ -15,6 +15,8 @@ import java.util.List;
 
 /**
  * Created by szl on 2018/3/1.
+ * 换电记录配适器
+ * 基本上参照Android教程中的例程编写
  */
 
 public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder> {

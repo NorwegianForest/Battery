@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.battery.AppointmentJson;
 import com.battery.Constants;
 import com.battery.HttpUtil;
 import com.battery.Station;
@@ -177,7 +176,6 @@ public class StationActivity extends AppCompatActivity {
                 if (responseData.equals("预约失败")) {
                     snackBarResult("预约失败");
                 } else {
-                    AppointmentJson a = new Gson().fromJson(responseData, AppointmentJson.class);
                     new Thread() {
                         @Override
                         public void run() {

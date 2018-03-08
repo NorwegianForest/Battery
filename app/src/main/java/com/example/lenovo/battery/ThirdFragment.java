@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 /**
  * Created by lenovo on 2018/2/9.
+ * 第三个分页面为电站地图，功能有待进一步开发
  */
 
 public class ThirdFragment extends Fragment {

@@ -14,6 +14,8 @@ public class BalanceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_balance);
+
+        // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
 
         Toolbar toolbar = findViewById(R.id.balance_toolbar);
@@ -27,6 +29,7 @@ public class BalanceActivity extends AppCompatActivity {
             }
         });
 
+        // UI更新余额数值
         balance = findViewById(R.id.balance_balance);
         balance.setText(getIntent().getStringExtra("balance"));
     }

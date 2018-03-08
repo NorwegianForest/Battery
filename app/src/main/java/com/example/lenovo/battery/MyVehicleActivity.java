@@ -37,6 +37,8 @@ public class MyVehicleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_vehicle);
+
+        // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
 
         Toolbar toolbar = findViewById(R.id.my_vehicle_toolbar);
@@ -58,6 +60,10 @@ public class MyVehicleActivity extends AppCompatActivity {
         loadVehicle(getIntent().getStringExtra("id"));
     }
 
+    /**
+     * 获取用户的所有车辆数据,并更新UI
+     * @param id 用户id
+     */
     private void loadVehicle(String id) {
         RequestBody body = new FormBody.Builder().add("user_id", id).build();
         HttpUtil.sendRequest(Constants.USERVEHICLE, body, new okhttp3.Callback() {
@@ -67,15 +73,20 @@ public class MyVehicleActivity extends AppCompatActivity {
                 if (responseData.equals("无结果")) {
 
                 } else {
+                    // 服务器响应的数据仅仅是用户对应的所有车辆的id
+                    // 需要再通过车辆id完善车辆的其他数据
                     List<UserVehicle> uvList = new Gson().fromJson(responseData
                             , new TypeToken<List<UserVehicle>>(){}.getType());
+
                     vehicleList = new ArrayList<>();
+
                     // 等待Vehicle对象根据id完善自身其他数据
                     CountDownLatch l1 = new CountDownLatch(uvList.size());
                     for (UserVehicle uv : uvList) {
                         Vehicle vehicle = new Vehicle();
                         vehicle.setId(uv.getVehicleId());
-                        Log.d("MyVehicleActivity:", "获取车辆id:" + vehicle.getId());
+
+                        // 该Vehicle对象通过id请求其他数据，包括对应的电池数据
                         vehicle.load(l1);
                         vehicleList.add(vehicle);
                     }
@@ -101,6 +112,9 @@ public class MyVehicleActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI通过重新设置配适器,更新车辆数据的线程
+     */
     Runnable runLoadVehicle = new Runnable() {
         @Override
         public void run() {

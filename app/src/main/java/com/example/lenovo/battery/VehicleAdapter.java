@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * Created by szl on 2018/3/1.
+ * 用户爱车数据的配适器，参照Android教程中的例程
  */
 
 public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.ViewHolder> {

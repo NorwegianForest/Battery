@@ -36,6 +36,8 @@ public class CollectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection);
+
+        // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
 
         Toolbar toolbar = findViewById(R.id.collection_toolbar);
@@ -60,6 +62,10 @@ public class CollectionActivity extends AppCompatActivity {
         loadStationList(id);
     }
 
+    /**
+     * 请求并加载用户的收藏电站数据，并更新UI
+     * @param id 用户id
+     */
     private void loadStationList(String id) {
         RequestBody body = new FormBody.Builder().add("user_id", id).build();
         HttpUtil.sendRequest(Constants.COLLECTIONADDRESS, body, new Callback() {
@@ -82,10 +88,12 @@ public class CollectionActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新收藏电站数据的线程
+     */
     Runnable setListRunnable = new  Runnable(){
         @Override
         public void run() {
-            //更新界面
             StationAdapterPro adapter = new StationAdapterPro(stationList);
             int userId = Integer.parseInt(getIntent().getStringExtra("id"));
             adapter.setUserId(userId);

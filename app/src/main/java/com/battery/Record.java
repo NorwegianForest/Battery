@@ -1,17 +1,6 @@
 package com.battery;
 
-import android.util.Log;
-
-import com.google.gson.Gson;
-
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Created by szl on 2018/2/4.

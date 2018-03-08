@@ -33,6 +33,8 @@ import okhttp3.Response;
 
 /**
  * Created by lenovo on 2018/2/9.
+ * 第二分页面，推荐电站
+ * 推荐排队时间最短和距离最近的两个电站
  */
 
 public class SecondFragment extends Fragment {
@@ -58,6 +60,8 @@ public class SecondFragment extends Fragment {
 
         refreshLayout = view.findViewById(R.id.first_refresh);
         refreshLayout.setColorSchemeResources(R.color.colorAccent);
+
+        // 刷新后重新请求并加载数据
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -76,6 +80,9 @@ public class SecondFragment extends Fragment {
         return view;
     }
 
+    /**
+     * 获取推荐电站数据，并更新UI
+     */
     private void loadRecommend() {
         RequestBody body = new FormBody.Builder()
                 .add("user_id", Integer.toString(userId)).build();
@@ -100,6 +107,9 @@ public class SecondFragment extends Fragment {
         });
     }
 
+    /**
+     * UI更新推荐电站数据的线程
+     */
     Runnable runRecommend = new Runnable() {
         @Override
         public void run() {

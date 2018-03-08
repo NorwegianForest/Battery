@@ -14,7 +14,8 @@ import java.util.List;
 
 /**
  * Created by szl on 2018/2/28.
- * 改进的adapter
+ * 电站数据列表配适器，参照Android教程中的例程
+ * 命名中的Pro是区别于之前的StationAdapter类，进行改进
  */
 
 public class StationAdapterPro extends RecyclerView.Adapter<StationAdapterPro.ViewHolder> {

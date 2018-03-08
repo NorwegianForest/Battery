@@ -67,33 +67,6 @@ public class Station {
     /**
      * 根据电站id向服务器请求完善自身数据
      */
-    public void load() {
-        RequestBody body = new FormBody.Builder()
-                .add("station_id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                if (responseData.equals("无结果")) {
-
-                } else {
-                    Station station = new Gson().fromJson(responseData, Station.class);
-                    id = station.getId();
-                    name = station.getName();
-                    address = station.getAddress();
-                    longitude = station.getLongitude();
-                    latitude = station.getLatitude();
-                    Log.d("Station", "电站名称:" + name);
-                }
-            }
-        });
-    }
-
     public void load(final CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
                 .add("station_id", Integer.toString(id)).build();

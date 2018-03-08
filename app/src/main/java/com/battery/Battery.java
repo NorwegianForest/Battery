@@ -32,12 +32,6 @@ public class Battery {
     private double residualCapacity; // 剩余容量 *
     private String date; // 投入使用的日期 *
 
-    public void loadByVehicleId() {
-        RequestBody body = new FormBody.Builder()
-                .add("vehicle_id", Integer.toString(vehicleId)).build();
-        sendRequest(Constants.BATTERYADDRESS, body);
-    }
-
     public void loadByVehicleId(CountDownLatch latch) {
         RequestBody body = new FormBody.Builder()
                 .add("vehicle_id", Integer.toString(vehicleId)).build();

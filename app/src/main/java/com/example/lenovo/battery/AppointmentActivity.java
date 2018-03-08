@@ -48,8 +48,11 @@ public class AppointmentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appointment);
+
+        // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
 
+        // 工具栏设定
         Toolbar toolbar = findViewById(R.id.appointment_toolbar);
         toolbar.setTitle("预约信息");
         setSupportActionBar(toolbar);
@@ -69,10 +72,13 @@ public class AppointmentActivity extends AppCompatActivity {
         cancelButton = findViewById(R.id.appointment_cancel);
 
         handler = new Handler();
+
+        // 获取上级活动参数 用户id
         String id = getIntent().getStringExtra("id");
         userId = id;
         loadAppointment(id);
 
+        // 取消预约按钮监听事件
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,6 +89,10 @@ public class AppointmentActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 加载用户的当前预约信息并显示
+     * @param id 用户id
+     */
     private void loadAppointment(String id) {
         RequestBody body = new FormBody.Builder().add("user_id", id).build();
         HttpUtil.sendRequest(Constants.APPOINTMENTADDRESS, body, new Callback() {
@@ -94,15 +104,29 @@ public class AppointmentActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
+
+                // 获取到的是该用户的所有预约信息，无论是当前的、已完成的或已取消的
                 appointmentList = new Gson().fromJson(responseData, new TypeToken<List<Appointment>>(){}.getType());
+
+                // Appointment对象中只有station_id和new_battery_id属性，没有对应的电站名和电池编号属性
+                // 故需要调用加载电站和电池对象的方法
                 for (Appointment appointment : appointmentList) {
                     appointment.loadStation();
                     appointment.loadNewBattery();
                 }
+
+                // 在用户的所有预约数据中找到当前正在预约的一条，有且仅有一条
                 for (Appointment a : appointmentList) {
                     if (a.getComplete() == 0) {
+
+                        // 根据station_id属性向服务器请求数据并加载晚上Station对象数据，再加以显示
+                        // 电站的信息和预约的信息分开是由于上一个for循环可能线程没有结束
+                        // 导致在还没有请求到数据的情况下就执行了更新界面显示的语句而显示错误
                         loadStation(Integer.toString(a.getStationId()));
+
                         appointment = a;
+
+                        // 更新UI的语句一般情况下需要在单独的线程执行，否则可能会出现错误
                         new Thread(){
                             public void run(){
                                 handler.post(setAppointment);
@@ -114,6 +138,9 @@ public class AppointmentActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新预约信息的的线程
+     */
     Runnable setAppointment = new  Runnable(){
         @Override
         public void run() {
@@ -129,6 +156,10 @@ public class AppointmentActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 加载用户当前预约的电站的数据，并更新UI
+     * @param stationId 电站id
+     */
     private void loadStation(String stationId) {
         RequestBody body = new FormBody.Builder().add("station_id", stationId).build();
         HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
@@ -154,6 +185,9 @@ public class AppointmentActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * UI更新电站名、电站地址的线程
+     */
     Runnable setStation = new  Runnable(){
         @Override
         public void run() {
@@ -162,6 +196,9 @@ public class AppointmentActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 取消用户当前预约，在“取消预约”按钮事件中调用
+     */
     private void cancelAppointment() {
         RequestBody body = new FormBody.Builder().add("user_id", userId).build();
         HttpUtil.sendRequest(Constants.CANCELAPPOINTMENT, body, new Callback() {
@@ -173,6 +210,8 @@ public class AppointmentActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
+
+                // 一般情况下不会取消失败
                 if (responseData.equals("取消预约成功")) {
                     new Thread() {
                         @Override
@@ -192,16 +231,25 @@ public class AppointmentActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 成功取消预约后，更新UI的线程
+     */
     Runnable runCancelAppointment = new Runnable() {
         @Override
         public void run() {
+            // 显示提示
             snackBarResult("预约已取消");
+
+            // 更新“取消预约”按钮的UI
             cancelButton.setText("已取消");
             cancelButton.setBackgroundColor(Color.rgb(213, 213, 213));
             cancelButton.setTextColor(Color.rgb(170,170,170));
         }
     };
 
+    /**
+     * 取消预约失败后的UI提示线程
+     */
     Runnable runCancelAppointmentFailed = new Runnable() {
         @Override
         public void run() {
@@ -209,6 +257,10 @@ public class AppointmentActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 布局低端显示提示信息，使用snackBar
+     * @param result 要显示的提示信息
+     */
     private void snackBarResult(String result) {
         Snackbar.make(findViewById(R.id.appointment), result, Snackbar.LENGTH_SHORT)
                 .setAction("UNDO", new View.OnClickListener() {

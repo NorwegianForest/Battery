@@ -2,6 +2,7 @@ package com.battery;
 
 /**
  * Created by szl on 2018/2/4.
+ * 已弃用
  * 用于在预约中接收预约结果
  */
 

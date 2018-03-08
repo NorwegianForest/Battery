@@ -32,9 +32,7 @@ public class User extends DataSupport {
     private double balance; // 账户余额 *
     private int isDefault; // 是否默认登录，1为是，0为否
     private List<Vehicle> vehicleList; // 用户所有爱车
-    private List<Record> recordList; // 用户所有换电记录
     private List<Appointment> appointmentList; // 用户所有预约记录
-    private List<Station> stationList; // 用户收藏的所有电站
     private boolean isAppointment = false; // 该用户是否已有一次未完成预约
 
     /**
@@ -66,33 +64,6 @@ public class User extends DataSupport {
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
                 latch.countDown();
-            }
-        });
-    }
-
-    public void login() {
-        RequestBody body = new FormBody.Builder()
-                .add("phone", phone)
-                .add("password", password).build();
-        HttpUtil.sendRequest(Constants.LOGINADDRESS, body, new okhttp3.Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                if (responseData.equals("illegal")) {
-                    Log.d("User", phone + "登录失败");
-                } else {
-                    User user = new Gson().fromJson(responseData, User.class);
-                    id = user.getId();
-                    phone = user.getPhone();
-                    password = user.getPassword();
-                    balance = user.getBalance();
-                    Log.d("User", phone + "登录成功");
-                }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
             }
         });
     }
@@ -142,43 +113,6 @@ public class User extends DataSupport {
     }
 
     /**
-     * 根据用户id向服务器请求所有换电记录数据
-     */
-    public void loadRecord() {
-        RequestBody body = new FormBody.Builder()
-                .add("user_id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.RECORDADDRESS,  body, new okhttp3.Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                if (responseData.equals("无结果")) {
-                    Log.d("User", "换电数据无结果");
-                } else {
-                    recordList = new Gson().fromJson(responseData, new TypeToken<List<Record>>() {
-                    }.getType());
-                    for (Record record : recordList) {
-                        record.loadStation();
-                        record.loadOldBattery();
-                        record.loadNewBattery();
-                        Log.d("User:", "id:" + record.getId());
-                        Log.d("User:", "用户id:" + record.getUserId());
-                        Log.d("User:", "电站id:" + record.getStationId());
-                        Log.d("User:", "费用:" + record.getMoney());
-                        Log.d("User:", "旧电池id:" + record.getOldBatteryId());
-                        Log.d("User:", "新电池id:" + record.getNewBatteryId());
-                        Log.d("User:", "时间:" + record.getDate());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    /**
      * 根据用户id，向服务器请求所有预约信息
      */
     public void loadAppointment(final CountDownLatch latch) {
@@ -207,70 +141,6 @@ public class User extends DataSupport {
                     Log.d("User:", "被换电车辆:" + appointment.getVehicleId());
                 }
                 latch.countDown();
-            }
-        });
-    }
-
-    /**
-     * 根据用户id，向服务器请求所有收藏的电站信息
-     */
-    public void loadStation(final CountDownLatch latch) {
-        RequestBody body = new FormBody.Builder()
-                .add("user_id", Integer.toString(id))
-                .add("vehicle_id", Integer.toString(vehicleList.get(0).getId())).build();
-        HttpUtil.sendRequest(Constants.COLLECTIONADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                stationList = new Gson().fromJson(responseData,
-                        new TypeToken<List<Station>>(){}.getType());
-                for (Station station : stationList) {
-                    Log.d("User", "id:"+station.getId());
-                    Log.d("User", "名称:"+station.getName());
-                    Log.d("User", "地址:"+station.getAddress());
-                    Log.d("User", "经度:"+station.getLongitude());
-                    Log.d("User", "纬度:"+station.getLatitude());
-                    Log.d("User", "距离:"+station.getDistance());
-                    Log.d("User", "排队时间:"+station.getQueueTime());
-                }
-                latch.countDown();
-            }
-        });
-    }
-
-    /**
-     * 用户预约电站
-     * @param vehicleId 预约车辆id
-     * @param stationId 预约电站id
-     */
-    public void appointment(int vehicleId, int stationId) {
-        RequestBody body = new FormBody.Builder()
-                .add("user_id", Integer.toString(id))
-                .add("vehicle_id", Integer.toString(vehicleId))
-                .add("station_id", Integer.toString(stationId)).build();
-        HttpUtil.sendRequest(Constants.HANDLEAPPOINTMENT, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                if (responseData.equals("预约失败")) {
-                    Log.d("responseData", responseData);
-                } else {
-                    AppointmentJson a = new Gson().fromJson(responseData, AppointmentJson.class);
-                    isAppointment = true;
-                    Log.d("User", "预约电池:" + a.getBatteryId());
-                    Log.d("User", "预约时间" + a.getDate());
-                }
             }
         });
     }
