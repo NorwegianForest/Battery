@@ -1,6 +1,10 @@
 package com.example.lenovo.battery;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,10 +12,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.battery.Constants;
+import com.battery.HttpUtil;
 import com.battery.Vehicle;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by szl on 2018/3/1.
@@ -22,6 +35,7 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.ViewHold
 
     private Context context;
     private List<Vehicle> vehicleList;
+    private String userId;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -52,6 +66,11 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.ViewHold
         this.vehicleList = vehicleList;
     }
 
+    public VehicleAdapter(List<Vehicle> vehicleList, String userId) {
+        this.vehicleList = vehicleList;
+        this.userId = userId;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (context == null) {
@@ -62,7 +81,7 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         Vehicle vehicle = vehicleList.get(position);
 
         String brandStr = vehicle.getBrand() + " - " + vehicle.getModel();
@@ -90,6 +109,45 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.ViewHold
 
         String timeStr = "充电需要: " + (int) (4.0 * (vehicle.getBattery().getActualCapacity() - vehicle.getBattery().getResidualCapacity())) + "min";
         holder.time.setText(timeStr);
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Vehicle v = vehicleList.get(position);
+                AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
+                dialog.setTitle("更换参考车辆为 " + v.getPlate() + " ?");
+                dialog.setCancelable(false);
+                dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        changeReference(userId, Integer.toString(v.getId()));
+                    }
+                });
+                dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                });
+                dialog.show();
+            }
+        });
+    }
+
+    private void changeReference(String userId, String vehicleId) {
+        RequestBody body = new FormBody.Builder().add("user_id", userId)
+                .add("vehicle_id", vehicleId).build();
+        HttpUtil.sendRequest(Constants.CHANGEREFERENCE, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+            }
+        });
+
     }
 
     @Override

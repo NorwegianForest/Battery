@@ -1,5 +1,6 @@
 package com.example.lenovo.battery;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -83,6 +84,8 @@ public class UserActivity extends AppCompatActivity {
 
     private Handler handler;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +93,12 @@ public class UserActivity extends AppCompatActivity {
 
         // 设置统一的状态栏颜色
         MainActivity.setStatusBarColor(this);
+
+        progressDialog = new ProgressDialog(UserActivity.this);
+        progressDialog.setTitle("加载个人信息");
+        progressDialog.setMessage("请稍候...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         // 找到控件对应的对象
         findView();
@@ -255,6 +264,8 @@ public class UserActivity extends AppCompatActivity {
                 appointmentTime.setText("");
                 appointmentQueue.setText("");
             }
+
+            progressDialog.dismiss();
         }
     };
 

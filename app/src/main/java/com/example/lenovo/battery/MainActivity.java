@@ -1,24 +1,31 @@
 package com.example.lenovo.battery;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -29,14 +36,25 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.battery.Constants;
 import com.battery.Database;
+import com.battery.HttpUtil;
 import com.battery.User;
+import com.battery.Vehicle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private List<Fragment> list;
     private String[] titles = {"附近电站","电站推荐","电站地图"};
+
+    private Thread askAppointmentThread;
+    private Thread askBatteryThread;
+    private int sleepTime;
+    private Handler handler;
+
+    private boolean hasBatteryDialog;
 
     /**
      * 设置某个活动的状态栏颜色，代码来自网络
@@ -150,28 +175,16 @@ public class MainActivity extends AppCompatActivity {
 
                     // 预约信息选项
                     case R.id.nav_appointment:
-                        // 获取用户的预约信息
-                        // TODO
-                        // 先询问数据库是否有预约将会导致点击预约信息后卡顿
-                        // 最好先转跳到AppointmentActivity然后判断是否有预约
-                        // 如无预约转跳到NoAppointmentActivity然后将AppointmentActivity finish即可
-//                        CountDownLatch latch = new CountDownLatch(1);
-//                        user.loadAppointment(latch);
-//                        try {
-//                            latch.await();
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
+                        intent = new Intent(MainActivity.this, AppointmentActivity.class);
+                        intent.putExtra("id", Integer.toString(user.getId()));
+                        startActivity(intent);
+                        break;
 
-                        // 根据用户当前是否有未完成预约来决定转跳的目标活动
-//                        if (user.isAppointment()) {
-                            intent = new Intent(MainActivity.this, AppointmentActivity.class);
-                            intent.putExtra("id", Integer.toString(user.getId()));
-                            startActivity(intent);
-//                        } else {
-//                            intent = new Intent(MainActivity.this, NoAppointmentActivity.class);
-//                            startActivity(intent);
-//                        }
+                    // 电站地图选项
+                    case R.id.nav_map:
+                        intent = new Intent(MainActivity.this, MapActivity.class);
+                        intent.putExtra("id", Integer.toString(user.getId()));
+                        startActivity(intent);
                         break;
 
                     // 收藏电站选项
@@ -225,7 +238,139 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        handler = new Handler();
+
+        sleepTime = 7000;
+        askAppointmentThread = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(sleepTime);
+                        askAppointment();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        askAppointmentThread.start();
+
+        hasBatteryDialog = false;
+
+        askBatteryThread = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(7000);
+                        askBattery();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        askBatteryThread.start();
     }
+
+    private void askBattery() {
+        RequestBody body = new FormBody.Builder().add("user_id", Integer.toString(user.getId())).build();
+        HttpUtil.sendRequest(Constants.ELECTRICITYADDRESS, body, new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("电量不足")) {
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            handler.post(runShowBattery);
+                        }
+                    }.start();
+                } else {
+                    hasBatteryDialog = false;
+                }
+            }
+        });
+    }
+
+    Runnable runShowBattery = new Runnable() {
+        @Override
+        public void run() {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+            dialog.setTitle("电量不足");
+            dialog.setCancelable(false);
+            dialog.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            dialog.setNegativeButton("查看", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(MainActivity.this, MyVehicleActivity.class);
+                    intent.putExtra("id", Integer.toString(user.getId()));
+                    startActivity(intent);
+                }
+            });
+            if (!hasBatteryDialog) {
+                dialog.show();
+                hasBatteryDialog = true;
+            }
+        }
+    };
+
+    private void askAppointment() {
+        RequestBody body = new FormBody.Builder().add("id", Integer.toString(user.getId())).build();
+        HttpUtil.sendRequest(Constants.COMPLETEADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("已完成")) {
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            handler.post(runShowAppointment);
+                        }
+                    }.start();
+                }
+            }
+        });
+    }
+
+    Runnable runShowAppointment = new Runnable() {
+        @Override
+        public void run() {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+            dialog.setTitle("换电完成");
+            dialog.setCancelable(false);
+            dialog.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            dialog.setNegativeButton("查看记录", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(MainActivity.this, RecordActivity.class);
+                    intent.putExtra("id", Integer.toString(user.getId()));
+                    startActivity(intent);
+                }
+            });
+            dialog.show();
+        }
+    };
 
     /**
      * 实现菜单必须重写该方法

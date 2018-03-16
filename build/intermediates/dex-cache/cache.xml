@@ -83,6 +83,16 @@
     </item>
     <item
         is-multidex="false"
+        jar="E:\STUDY\Android_program\Battery\app\libs\httpmime-4.1.2.jar"
+        jumboMode="false"
+        min-sdk-version="15"
+        optimize="true"
+        revision="26.0.2"
+        sha1="ed8b5ee0167cb27dea55851259eb34b609f31df0">
+        <dex dex="E:\STUDY\Android_program\Battery\app\build\intermediates\transforms\preDex\release\29.jar" />
+    </item>
+    <item
+        is-multidex="false"
         jar="C:\Users\Administrator\.gradle\caches\transforms-1\files-1.1\percent-26.1.0.aar\4c1ede6fd1ce79b919fb8c63f23714d0\jars\classes.jar"
         jumboMode="false"
         min-sdk-version="15"
@@ -200,6 +210,16 @@
         revision="26.0.2"
         sha1="9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4">
         <dex dex="E:\STUDY\Android_program\Battery\app\build\intermediates\transforms\preDex\release\8.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="E:\STUDY\Android_program\Battery\app\libs\BaiduLBS_Android.jar"
+        jumboMode="false"
+        min-sdk-version="15"
+        optimize="true"
+        revision="26.0.2"
+        sha1="faad006c432c82e30944b5daffe98bb242723ed6">
+        <dex dex="E:\STUDY\Android_program\Battery\app\build\intermediates\transforms\preDex\release\30.jar" />
     </item>
     <item
         is-multidex="false"

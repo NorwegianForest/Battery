@@ -32,6 +32,7 @@ public class MyVehicleActivity extends AppCompatActivity {
     private List<Vehicle> vehicleList;
     RecyclerView recyclerView;
     Handler handler;
+    String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,8 @@ public class MyVehicleActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         handler = new Handler();
-        loadVehicle(getIntent().getStringExtra("id"));
+        userId = getIntent().getStringExtra("id");
+        loadVehicle(userId);
     }
 
     /**
@@ -118,7 +120,7 @@ public class MyVehicleActivity extends AppCompatActivity {
     Runnable runLoadVehicle = new Runnable() {
         @Override
         public void run() {
-            VehicleAdapter adapter = new VehicleAdapter(vehicleList);
+            VehicleAdapter adapter = new VehicleAdapter(vehicleList, userId);
             recyclerView.setAdapter(adapter);
         }
     };

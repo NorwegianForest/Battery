@@ -4,6 +4,7 @@
     package="com.example.lenovo.battery"
     tools:ignore="ExtraText">
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     //获取设备网络状态，禁用后无法获取网络状态
@@ -31,6 +32,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="DzZrno0bvOhO2GOsrupANFwLB3U5gwo0" />

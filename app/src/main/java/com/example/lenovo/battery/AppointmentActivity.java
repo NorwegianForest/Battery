@@ -1,5 +1,6 @@
 package com.example.lenovo.battery;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
@@ -45,6 +46,8 @@ public class AppointmentActivity extends AppCompatActivity {
     private com.battery.Station station;
     private Handler handler;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +67,12 @@ public class AppointmentActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+
+        progressDialog = new ProgressDialog(AppointmentActivity.this);
+        progressDialog.setTitle("加载预约信息");
+        progressDialog.setMessage("请稍候...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         name = findViewById(R.id.appointment_name);
         address = findViewById(R.id.appointment_address);
@@ -139,6 +148,7 @@ public class AppointmentActivity extends AppCompatActivity {
                 }
 
                 if (!hasAppointment) {
+                    progressDialog.dismiss();
                     Intent intent = new Intent(AppointmentActivity.this, NoAppointmentActivity.class);
                     startActivity(intent);
                     AppointmentActivity.this.finish();
@@ -162,6 +172,8 @@ public class AppointmentActivity extends AppCompatActivity {
             String distanceStr = "距离我的位置: " + Double.toString(appointment.getDistance()) + "km";
             System.out.println("AppointmentActivity:" + appointment.getDistance());
             distance.setText(distanceStr);
+
+            progressDialog.dismiss();
         }
     };
 

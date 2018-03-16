@@ -41,6 +41,8 @@ public class StationActivity extends AppCompatActivity {
     String stationId;
     Station station;
 
+    int appointmentId;
+
     Handler handler;
 
     @Override
