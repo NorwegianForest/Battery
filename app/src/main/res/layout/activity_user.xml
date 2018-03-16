@@ -113,7 +113,7 @@
                                 android:gravity="center"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
-                                android:text="80%"
+                                android:text="@null"
                                 android:textColor="#FFF"/>
                         </FrameLayout>
 
@@ -130,19 +130,19 @@
                                 android:textSize="20sp"
                                 android:layout_marginBottom="15dp"
                                 android:layout_marginTop="10dp"
-                                android:text="特斯拉-Model S"/>
+                                android:text="@null"/>
                             <TextView
                                 android:id="@+id/user_mileage"
                                 android:textColor="#303030"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="剩余里程:50km"/>
+                                android:text="@null"/>
                             <TextView
                                 android:id="@+id/user_charging_time"
                                 android:textColor="#303030"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="充电还需:50min"/>
+                                android:text="@null"/>
                         </LinearLayout>
                     </LinearLayout>
 
@@ -189,7 +189,7 @@
                                     android:layout_height="wrap_content"
                                     android:textStyle="bold"
                                     android:textSize="30sp"
-                                    android:text="1,000.00"/>
+                                    android:text="@null"/>
                             </LinearLayout>
 
                         </android.support.v7.widget.CardView>
@@ -225,19 +225,19 @@
                                     android:textSize="20sp"
                                     android:paddingBottom="5dp"
                                     android:paddingTop="5dp"
-                                    android:text="犀浦地铁站充换电站"/>
+                                    android:text="@null"/>
                                 <TextView
                                     android:id="@+id/user_appointment_time"
                                     android:textColor="#303030"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="预计18:30可获取电池"/>
+                                    android:text="@null"/>
                                 <TextView
                                     android:id="@+id/user_appointment_queue"
                                     android:textColor="#303030"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="排队时间: 10min"/>
+                                    android:text="@null"/>
                             </LinearLayout>
                         </android.support.v7.widget.CardView>
 
@@ -280,19 +280,19 @@
                                     android:paddingBottom="5dp"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="成都龙域龙湾二期充换电站"/>
+                                    android:text="@null"/>
                                 <TextView
                                     android:id="@+id/user_record_money"
                                     android:textColor="#303030"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="¥80.00"/>
+                                    android:text="@null"/>
                                 <TextView
                                     android:id="@+id/user_record_time"
                                     android:textColor="#303030"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="16:00"/>
+                                    android:text="@null"/>
                             </LinearLayout>
 
                         </android.support.v7.widget.CardView>
@@ -330,7 +330,7 @@
                                     android:textSize="20sp"
                                     android:paddingBottom="5dp"
                                     android:paddingTop="5dp"
-                                    android:text="天府广场充换电站"/>
+                                    android:text="@null"/>
                             </LinearLayout>
 
                         </android.support.v7.widget.CardView>
@@ -373,7 +373,7 @@
                                 android:layout_height="wrap_content"
                                 android:paddingBottom="5dp"
                                 android:paddingTop="5dp"
-                                android:text="成都伊顿小镇充换电站"
+                                android:text="@null"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
 
@@ -382,14 +382,14 @@
                                 android:textColor="#303030"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="20min" />
+                                android:text="@null" />
 
                             <TextView
                                 android:id="@+id/user_close_distance"
                                 android:textColor="#303030"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="5km" />
+                                android:text="@null" />
                         </LinearLayout>
 
                         <ImageView
@@ -440,7 +440,7 @@
                                 android:layout_height="wrap_content"
                                 android:paddingBottom="5dp"
                                 android:paddingTop="5dp"
-                                android:text="成都太平镇政府充换电站"
+                                android:text="@null"
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
 
@@ -449,14 +449,14 @@
                                 android:textColor="#303030"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="5min" />
+                                android:text="@null" />
 
                             <TextView
                                 android:id="@+id/user_time_distance"
                                 android:textColor="#303030"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="10km" />
+                                android:text="@null" />
                         </LinearLayout>
 
                         <ImageView

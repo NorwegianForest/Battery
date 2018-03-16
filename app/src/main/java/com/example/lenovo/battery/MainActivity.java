@@ -30,6 +30,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.battery.Database;
 import com.battery.User;
 
@@ -77,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //在使用SDK各组件之前初始化context信息，传入ApplicationContext
+        //注意该方法要再setContentView方法之前实现
+        SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_main);
 
         // 设置统一的状态栏颜色
@@ -147,23 +151,27 @@ public class MainActivity extends AppCompatActivity {
                     // 预约信息选项
                     case R.id.nav_appointment:
                         // 获取用户的预约信息
-                        CountDownLatch latch = new CountDownLatch(1);
-                        user.loadAppointment(latch);
-                        try {
-                            latch.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        // TODO
+                        // 先询问数据库是否有预约将会导致点击预约信息后卡顿
+                        // 最好先转跳到AppointmentActivity然后判断是否有预约
+                        // 如无预约转跳到NoAppointmentActivity然后将AppointmentActivity finish即可
+//                        CountDownLatch latch = new CountDownLatch(1);
+//                        user.loadAppointment(latch);
+//                        try {
+//                            latch.await();
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
 
                         // 根据用户当前是否有未完成预约来决定转跳的目标活动
-                        if (user.isAppointment()) {
+//                        if (user.isAppointment()) {
                             intent = new Intent(MainActivity.this, AppointmentActivity.class);
                             intent.putExtra("id", Integer.toString(user.getId()));
                             startActivity(intent);
-                        } else {
-                            intent = new Intent(MainActivity.this, NoAppointmentActivity.class);
-                            startActivity(intent);
-                        }
+//                        } else {
+//                            intent = new Intent(MainActivity.this, NoAppointmentActivity.class);
+//                            startActivity(intent);
+//                        }
                         break;
 
                     // 收藏电站选项
@@ -199,8 +207,6 @@ public class MainActivity extends AppCompatActivity {
         second.setUserId(user.getId());
         list.add(second);
 
-        list.add(new ThirdFragment());
-
         MyAdapter adapter = new MyAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
@@ -211,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,UserActivity.class);
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
                 intent.putExtra("id", Integer.toString(user.getId()));
                 intent.putExtra("name", user.getPhone());
                 intent.putExtra("balance", Double.toString(user.getBalance()));

@@ -58,7 +58,7 @@
         android:layout_alignRight="@+id/vpager"
         android:layout_alignBottom="@id/vpager"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_person_black_48dp"
+        android:src="@drawable/ic_map_black_48dp"
         app:backgroundTint="#0ddcff"
         android:tint="#455A64"
         app:fabSize="normal"

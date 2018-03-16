@@ -1,5 +1,6 @@
 package com.example.lenovo.battery;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -115,9 +116,11 @@ public class AppointmentActivity extends AppCompatActivity {
                     appointment.loadNewBattery();
                 }
 
+                boolean hasAppointment = false;
                 // 在用户的所有预约数据中找到当前正在预约的一条，有且仅有一条
                 for (Appointment a : appointmentList) {
                     if (a.getComplete() == 0) {
+                        hasAppointment = true;
 
                         // 根据station_id属性向服务器请求数据并加载晚上Station对象数据，再加以显示
                         // 电站的信息和预约的信息分开是由于上一个for循环可能线程没有结束
@@ -133,6 +136,12 @@ public class AppointmentActivity extends AppCompatActivity {
                             }
                         }.start();
                     }
+                }
+
+                if (!hasAppointment) {
+                    Intent intent = new Intent(AppointmentActivity.this, NoAppointmentActivity.class);
+                    startActivity(intent);
+                    AppointmentActivity.this.finish();
                 }
             }
         });
@@ -269,5 +278,16 @@ public class AppointmentActivity extends AppCompatActivity {
 
                     }
                 }).show();
+    }
+
+    /**
+     * 转跳到导航界面
+     * @param view action_navigation.xml
+     */
+    public void navigate(View view) {
+        Intent intent = new Intent(AppointmentActivity.this, NavigationActivity.class);
+        intent.putExtra("id", userId);
+        intent.putExtra("station_id", Integer.toString(appointment.getStation().getId()));
+        startActivity(intent);
     }
 }

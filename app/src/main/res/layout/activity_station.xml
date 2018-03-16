@@ -92,6 +92,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:onClick="navigate"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_margin="8dp">

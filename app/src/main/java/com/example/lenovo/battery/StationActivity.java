@@ -1,5 +1,6 @@
 package com.example.lenovo.battery;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -309,4 +310,15 @@ public class StationActivity extends AppCompatActivity {
             snackBarResult("已取消收藏");
         }
     };
+
+    /**
+     * 转跳到导航界面
+     * @param view action_navigation.xml
+     */
+    public void navigate(View view) {
+        Intent intent = new Intent(StationActivity.this, NavigationActivity.class);
+        intent.putExtra("id", userId);
+        intent.putExtra("station_id", stationId);
+        startActivity(intent);
+    }
 }
