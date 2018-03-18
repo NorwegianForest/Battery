@@ -32,7 +32,6 @@ public class User extends DataSupport {
     private double balance; // 账户余额 *
     private int isDefault; // 是否默认登录，1为是，0为否
     private List<Vehicle> vehicleList; // 用户所有爱车
-    private List<Appointment> appointmentList; // 用户所有预约记录
     private boolean isAppointment = false; // 该用户是否已有一次未完成预约
 
     /**
@@ -64,107 +63,6 @@ public class User extends DataSupport {
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
                 latch.countDown();
-            }
-        });
-    }
-
-    /**
-     * 根据用户id向服务器请求所有爱车数据
-     * @param latch 用于等待线程结束
-     */
-    public void loadVehicle(final CountDownLatch latch) {
-        RequestBody body = new FormBody.Builder()
-                .add("user_id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.USERVEHICLE, body, new okhttp3.Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                if (responseData.equals("无结果")) {
-
-                } else {
-                    List<UserVehicle> uvList = new Gson().fromJson(responseData
-                            , new TypeToken<List<UserVehicle>>(){}.getType());
-                    vehicleList = new ArrayList<>();
-                    // 等待Vehicle对象根据id完善自身其他数据
-                    CountDownLatch l1 = new CountDownLatch(uvList.size());
-                    for (UserVehicle uv : uvList) {
-                        Vehicle vehicle = new Vehicle();
-                        vehicle.setId(uv.getVehicleId());
-                        Log.d("User", "获取车辆id:" + vehicle.getId());
-                        vehicle.load(l1);
-                        vehicleList.add(vehicle);
-                    }
-
-                    try {
-                        l1.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-    }
-
-    /**
-     * 根据用户id，向服务器请求所有预约信息
-     */
-    public void loadAppointment(final CountDownLatch latch) {
-        RequestBody body = new FormBody.Builder()
-                .add("user_id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.APPOINTMENTADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                appointmentList = new Gson().fromJson(responseData, new TypeToken<List<Appointment>>(){}.getType());
-                isAppointment = false;
-                for (Appointment appointment : appointmentList) {
-                    appointment.loadStation();
-                    appointment.loadNewBattery();
-                    if (appointment.getComplete() == 0) {
-                        isAppointment = true;
-                    }
-                    Log.d("User:", "预约时间:" +appointment.getDate());
-                    Log.d("User:", "是否完成:" + appointment.getComplete());
-                    Log.d("User:", "被换电车辆:" + appointment.getVehicleId());
-                }
-                latch.countDown();
-            }
-        });
-    }
-
-    /**
-     * 向服务器询问预约是否已完成
-     */
-    public void isComplete() {
-        RequestBody body = new FormBody.Builder()
-                .add("id", Integer.toString(id)).build();
-        HttpUtil.sendRequest(Constants.COMPLETEADDRESS, body, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body().string();
-                if (responseData.equals("未完成")) {
-
-                } else {
-                    isAppointment = false;
-                }
             }
         });
     }

@@ -52,7 +52,7 @@ public class Vehicle {
                     longitude = vehicle.getLongitude();
                     latitude = vehicle.getLatitude();
                     date = vehicle.getDate();
-                    Log.d("Vehicle", "编号:" + number);
+                    Log.d("Vehicle调试", "编号:" + number);
 
                     battery = new Battery();
                     battery.setVehicleId(id);
@@ -63,6 +63,7 @@ public class Vehicle {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    System.out.println("调试：" + battery.getNumber());
                 }
                 latch.countDown();
             }

@@ -26,12 +26,14 @@ import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
 import com.battery.Constants;
 import com.battery.HttpUtil;
 import com.battery.Station;
@@ -52,7 +54,7 @@ import okhttp3.Response;
 public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClickListener {
 
     public LocationClient mLocationClient;
-    private TextureMapView mMapView;
+    private MapView mMapView;
     private BaiduMap mBaiduMap;
     private List<Marker> markerList;
     private InfoWindow mInfoWindow;
@@ -63,6 +65,7 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
     private String userId;
     private Vehicle vehicle;
     private Handler handler;
+    RequestLatLngThread t;
 
     int index;
 
@@ -114,7 +117,43 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
             String [] permissions = permissionList.toArray(new String[permissionList.size()]);
             ActivityCompat.requestPermissions(MapActivity.this, permissions, 1);
         } else {
-            requestLocation();
+            if (userId.equals("-1")) {
+                requestLocation();
+            } else {
+                requestVehicleLocation();
+                t = new RequestLatLngThread();
+                t.start();
+            }
+        }
+    }
+
+    class RequestLatLngThread extends Thread {
+
+        private boolean status = true;
+
+        public void stopThread() {
+            status = false;
+        }
+
+        @Override
+        public void run() {
+            while (status) {
+                try {
+                    Thread.sleep(10000);
+                    requestVehicleLocation();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Thread.yield();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!userId.equals("-1")) {
+            t.stopThread();
         }
     }
 
@@ -162,6 +201,12 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
 
                 } else {
                     vehicle = new Gson().fromJson(responseData, Vehicle.class);
+                    CoordinateConverter converter = new CoordinateConverter();
+                    converter.from(CoordinateConverter.CoordType.GPS);
+                    converter.coord(new LatLng(vehicle.getLatitude(), vehicle.getLongitude()));
+                    LatLng desLL = converter.convert();
+                    vehicle.setLatitude(desLL.latitude);
+                    vehicle.setLongitude(desLL.longitude);
                     navigateToVehicle();
                 }
             }
@@ -170,23 +215,24 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
 
     private void navigateToVehicle() {
          if (isFirstLocate) {
-            LatLng ll = new LatLng(vehicle.getLatitude(), vehicle.getLongitude());
-            MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(ll);
-            mBaiduMap.animateMapStatus(update);
-            update = MapStatusUpdateFactory.zoomTo(16f);
-            mBaiduMap.animateMapStatus(update);
 
-            // 移动到自己的位置
-            MapStatus.Builder builder = new MapStatus.Builder();
-            builder.target(ll);
-            mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+             LatLng ll = new LatLng(vehicle.getLatitude(), vehicle.getLongitude());
+             MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(ll);
+             mBaiduMap.animateMapStatus(update);
+             update = MapStatusUpdateFactory.zoomTo(16f);
+             mBaiduMap.animateMapStatus(update);
 
-            isFirstLocate = false;
+             // 移动到自己的位置
+             MapStatus.Builder builder = new MapStatus.Builder();
+             builder.target(ll);
+             mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
 
-            // 标记所有电站点
-            loadStations(getIntent().getStringExtra("id"));
+             isFirstLocate = false;
 
-            setMarkerListener();
+             // 标记所有电站点
+             loadStations(getIntent().getStringExtra("id"));
+
+             setMarkerListener();
         }
 
         MyLocationData.Builder locationBuilder = new MyLocationData.
@@ -239,21 +285,21 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
     @Override
     protected void onResume() {
         super.onResume();
-        mMapView.onResume();
+//        mMapView.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mMapView.onPause();
+//        mMapView.onPause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mLocationClient.stop();
-        mMapView.onDestroy();
-        mBaiduMap.setMyLocationEnabled(false);
+//        mLocationClient.stop();
+//        mBaiduMap.setMyLocationEnabled(false);
+//        mMapView.onDestroy();
     }
 
     @Override
@@ -268,7 +314,9 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
                             return;
                         }
                     }
-                    requestLocation();
+                    if (userId.equals("-1")) {
+                        requestLocation();
+                    }
                 } else {
                     Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
                     finish();
@@ -294,8 +342,11 @@ public class MapActivity extends AppCompatActivity implements BaiduMap.OnMapClic
         public void onReceiveLocation(BDLocation location) {
             if (location.getLocType() == BDLocation.TypeGpsLocation
                     || location.getLocType() == BDLocation.TypeNetWorkLocation) {
-//                navigateToUser(location);
-                requestVehicleLocation();
+                if (userId.equals("-1")) {
+                    navigateToUser(location);
+                } else {
+                    requestVehicleLocation();
+                }
             }
         }
     }

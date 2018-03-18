@@ -53,7 +53,7 @@
                         android:textSize="17sp"
                         android:textColor="#ffffff"
                         android:gravity="center"
-                        android:text="小宝"/>
+                        android:text="@null"/>
                 </RelativeLayout>
 
                 <android.support.v7.widget.Toolbar
@@ -320,7 +320,7 @@
                                     android:textColor="#303030"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="收藏(3)"/>
+                                    android:text="收藏(0)"/>
                                 <TextView
                                     android:id="@+id/user_collection_name"
                                     android:textColor="#303030"

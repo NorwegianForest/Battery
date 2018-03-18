@@ -21,12 +21,12 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <com.baidu.mapapi.map.TextureMapView
+    <com.baidu.mapapi.map.MapView
         android:id="@+id/mTexturemap"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
         android:focusable="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    </com.baidu.mapapi.map.TextureMapView>
+    </com.baidu.mapapi.map.MapView>
 </android.support.design.widget.CoordinatorLayout>

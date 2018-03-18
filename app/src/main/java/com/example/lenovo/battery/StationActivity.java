@@ -1,10 +1,12 @@
 package com.example.lenovo.battery;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -41,9 +43,8 @@ public class StationActivity extends AppCompatActivity {
     String stationId;
     Station station;
 
-    int appointmentId;
-
     Handler handler;
+    AlertDialog.Builder dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,16 +72,41 @@ public class StationActivity extends AppCompatActivity {
         userId = getIntent().getStringExtra("id");
         stationId = getIntent().getStringExtra("station_id");
 
+        // 如果userId是-1，就向station_by_id请求数据，不显示排队时间和距离，不能点击预约或收藏
         handler = new Handler();
-        loadStation();
+        if (userId.equals("-1")) {
+            loadStationById();
+
+            dialog = new AlertDialog.Builder(StationActivity.this);
+            dialog.setTitle("请先登录");
+            dialog.setCancelable(false);
+            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(StationActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+            });
+            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+        } else {
+            loadStationToUser();
+        }
 
         appointmentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) { // 预约按钮可预约和取消预约
-                if (appointmentButton.getText().equals("预约")) {
-                    sendAppointment();
+                if (!userId.equals("-1")) {
+                    if (appointmentButton.getText().equals("预约")) {
+                        sendAppointment();
+                    } else {
+                        cancelAppointment();
+                    }
                 } else {
-                    cancelAppointment();
+                    dialog.show();
                 }
             }
         });
@@ -96,11 +122,15 @@ public class StationActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.star:
-                this.item = item;
-                if (item.getTitle().equals("收藏")) {
-                    setCollection();
+                if (!userId.equals("-1")) {
+                    this.item = item;
+                    if (item.getTitle().equals("收藏")) {
+                        setCollection();
+                    } else {
+                        cancelCollection();
+                    }
                 } else {
-                    cancelCollection();
+                    dialog.show();
                 }
                 break;
                 default:
@@ -108,7 +138,37 @@ public class StationActivity extends AppCompatActivity {
         return true;
     }
 
-    private void loadStation() {
+    private void loadStationById() {
+        RequestBody body = new FormBody.Builder().add("station_id", stationId).build();
+        HttpUtil.sendRequest(Constants.STATIONBYIDADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                station = new Gson().fromJson(responseData, Station.class);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        handler.post(runStationById);
+                    }
+                }.start();
+            }
+        });
+    }
+
+    Runnable runStationById = new Runnable() {
+        @Override
+        public void run() {
+            name.setText(station.getName());
+            address.setText(station.getAddress());
+        }
+    };
+
+    private void loadStationToUser() {
         RequestBody body = new FormBody.Builder().add("user_id", userId)
                 .add("station_id", stationId).build();
         HttpUtil.sendRequest(Constants.STATIONTOUSER, body, new Callback() {
@@ -155,13 +215,7 @@ public class StationActivity extends AppCompatActivity {
     };
 
     private void snackBarResult(String result) {
-        Snackbar.make(findViewById(R.id.station), result, Snackbar.LENGTH_SHORT)
-                .setAction("UNDO", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                }).show();
+        Snackbar.make(findViewById(R.id.station), result, Snackbar.LENGTH_SHORT).show();
     }
 
     private void sendAppointment() {

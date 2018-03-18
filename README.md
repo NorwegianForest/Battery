@@ -6,9 +6,12 @@
 - 主要体现在智能引导车主进行电池更换
 - 截图一览
 - <img src="showImages/splash.png" width=360 height=640 />
+- <img src="showImages/login.png" width=360 height=640 />
 - <img src="showImages/first.png" width=360 height=640 />
 - <img src="showImages/second.png" width=360 height=640 />
 - <img src="showImages/station.png" width=360 height=640 />
+- <img src="showImages/route.png" width=360 height=640 />
+- <img src="showImages/map.png" width=360 height=640 />
 - <img src="showImages/user.png" width=360 height=640 />
 - <img src="showImages/drawer.png" width=360 height=640 />
 - <img src="showImages/balance.png" width=360 height=640 />
@@ -80,7 +83,7 @@ Better Place（BP）公司较早采用了这种充换电模式，其业务模式
 ### 3月8日更新
 - 整理代码、注释和文档
 
-### 3月16日跟新
+### 3月16日更新
 - 删除主页中电站地图分页面,将主页悬浮按钮改为转跳到电站地图页面,同时侧边导航栏增加电站地图选项
 - 增加了通过百度地图API显示车辆位置和电站位置的地图
 - 增加了目的地为各电站的驾车路线导航
@@ -91,3 +94,11 @@ Better Place（BP）公司较早采用了这种充换电模式，其业务模式
 - 在进入预约信息和个人中心时添加进度条，以减少卡顿的体验
 - 增加了更换参考车辆的功能
 - 增加了发布版apk的SHA1于百度开发者控制台
+
+### 3月18日更新
+- 修正了GPS经纬度在百度地图上坐标位置的偏差
+- 减少对CountDownLatch的使用，使整体使用更加流畅
+- 新增ActivityCollector类，用于对返回栈内的活动进行管理，便于统一销毁
+- 新增LoginActivity活动，用于登录，暂无注册
+- 未登录仍能正常使用APP
+- 导航功能将会调用手机内的百度地图APP进行

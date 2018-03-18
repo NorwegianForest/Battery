@@ -59,7 +59,9 @@ public class StationAdapterPro extends RecyclerView.Adapter<StationAdapterPro.Vi
         String timeStr = "排队时长:" + Integer.toString(station.getQueueTime()) + "min";
         holder.time.setText(timeStr);
         String distanceStr = "距离您的位置:" + station.getDistance() + "km";
-        holder.distance.setText(distanceStr);
+        if (station.getDistance() != 0.0) {
+            holder.distance.setText(distanceStr);
+        }
 
         holder.stationView.setOnClickListener(new View.OnClickListener() {
             @Override

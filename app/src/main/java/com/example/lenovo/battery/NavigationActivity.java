@@ -2,6 +2,9 @@ package com.example.lenovo.battery;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -11,9 +14,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapPoi;
@@ -22,6 +32,9 @@ import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.navi.BaiduMapAppNotSupportNaviException;
+import com.baidu.mapapi.navi.BaiduMapNavigation;
+import com.baidu.mapapi.navi.NaviParaOption;
 import com.baidu.mapapi.search.core.RouteLine;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.route.BikingRouteResult;
@@ -34,6 +47,8 @@ import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.TransitRouteResult;
 import com.baidu.mapapi.search.route.WalkingRouteResult;
+import com.baidu.mapapi.utils.CoordinateConverter;
+import com.baidu.mapapi.utils.OpenClientUtil;
 import com.battery.Constants;
 import com.battery.HttpUtil;
 import com.battery.Station;
@@ -59,6 +74,7 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
     private RoutePlanSearch mSearch = null;
     private RouteLine route = null;
     private OverlayManager routeOverlay = null;
+    private LocationClient mLocationClient;
 
     private boolean isFirstLocate = true;
 
@@ -66,12 +82,22 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
     private Vehicle vehicle;
     private Station station;
 
+    private MenuItem item;
+
+    private RadioGroup.OnCheckedChangeListener radioButtonListener;
+    private CoordType mCoordType;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //在使用SDK各组件之前初始化context信息，传入ApplicationContext
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(getApplicationContext());
+        userId = getIntent().getStringExtra("id");
+        if (userId.equals("-1")) {
+            mLocationClient = new LocationClient(getApplicationContext());
+            mLocationClient.registerLocationListener(new MyLocationListener());
+        }
         setContentView(R.layout.activity_navigation);
 
         // 设置统一的状态栏颜色
@@ -93,7 +119,6 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
         mMapView = findViewById(R.id.mTexturemap);
         mBaiduMap = mMapView.getMap();
 
-        userId = getIntent().getStringExtra("id");
         station = new Station();
         station.setId(Integer.parseInt(getIntent().getStringExtra("station_id")));
 
@@ -120,8 +145,88 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
             ActivityCompat.requestPermissions(NavigationActivity.this, permissions, 1);
         } else {
             // 正常情况会执行
-            requestVehicleLocation();
+            if (userId.equals("-1")) {
+                requestUserLocation();
+            } else {
+                requestVehicleLocation();
+            }
         }
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.navigation_toolbar, menu);
+        item = menu.findItem(R.id.navigation);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.navigation:
+                AlertDialog.Builder dialog = new AlertDialog.Builder(NavigationActivity.this);
+                dialog.setTitle("将启动百度地图APP进行导航");
+                dialog.setCancelable(false);
+                dialog.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                });
+                dialog.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startNavi();
+                    }
+                });
+                dialog.show();
+                break;
+                default:
+        }
+        return true;
+    }
+
+    /**
+     * 启动百度地图导航(Native)
+     */
+    public void startNavi() {
+        LatLng pt1 = new LatLng(vehicle.getLatitude(), vehicle.getLongitude());
+        LatLng pt2 = new LatLng(station.getLatitude(), station.getLongitude());
+
+        // 构建 导航参数
+        NaviParaOption para = new NaviParaOption()
+                .startPoint(pt1).endPoint(pt2)
+                .startName(vehicle.getBrand()).endName(station.getName());
+
+        try {
+            BaiduMapNavigation.openBaiduMapNavi(para, this);
+        } catch (BaiduMapAppNotSupportNaviException e) {
+            e.printStackTrace();
+            showDialog();
+        }
+    }
+
+    /**
+     * 提示未安装百度地图app或app版本过低
+     */
+    public void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("您尚未安装百度地图app或app版本过低，点击确认安装？");
+        builder.setTitle("提示");
+        builder.setPositiveButton("确认", new android.content.DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                OpenClientUtil.getLatestBaiduMapApp(NavigationActivity.this);
+            }
+        });
+
+        builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
     }
 
     private void requestVehicleLocation() {
@@ -139,9 +244,15 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
 
                 } else {
                     vehicle = new Gson().fromJson(responseData, Vehicle.class);
+                    CoordinateConverter converter = new CoordinateConverter();
+                    converter.from(CoordinateConverter.CoordType.GPS);
+                    converter.coord(new LatLng(vehicle.getLatitude(), vehicle.getLongitude()));
+                    LatLng desLL = converter.convert();
+                    vehicle.setLatitude(desLL.latitude);
+                    vehicle.setLongitude(desLL.longitude);
                     navigateTo();
                     requestStationLocation();
-                    setSearchNode();
+                    setSearchNode(vehicle.getLatitude(), vehicle.getLongitude());
                 }
             }
         });
@@ -174,9 +285,9 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
         }
     }
 
-    private void setSearchNode() {
+    private void setSearchNode(double targetLat, double targetLng) {
         route = null;
-        PlanNode stNode = PlanNode.withLocation(new LatLng(vehicle.getLatitude(), vehicle.getLongitude()));
+        PlanNode stNode = PlanNode.withLocation(new LatLng(targetLat, targetLng));
         PlanNode enNode = PlanNode.withLocation(new LatLng(station.getLatitude(), station.getLongitude()));
         mSearch.drivingSearch((new DrivingRoutePlanOption())
                 .from(stNode)
@@ -275,13 +386,30 @@ public class NavigationActivity extends AppCompatActivity implements BaiduMap.On
                             return;
                         }
                     }
-                    requestVehicleLocation();
+                    if (userId.equals("-1")) {
+                        requestUserLocation();
+                    } else {
+                        requestVehicleLocation();
+                    }
                 } else {
                     Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
             default:
+        }
+    }
+
+    private void requestUserLocation() {
+        mLocationClient.start();
+    }
+
+    class MyLocationListener implements BDLocationListener {
+
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+            requestStationLocation();
+            setSearchNode(bdLocation.getLatitude(), bdLocation.getLongitude());
         }
     }
 }

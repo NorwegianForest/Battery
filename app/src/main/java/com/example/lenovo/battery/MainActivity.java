@@ -101,8 +101,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityCollector.removeActivity(this);//将活动移除活动收集器
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityCollector.addActivity(this);//将活动添加到活动收集器
         //在使用SDK各组件之前初始化context信息，传入ApplicationContext
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(getApplicationContext());
@@ -112,16 +119,25 @@ public class MainActivity extends AppCompatActivity {
         setStatusBarColor(this);
 
         // 初始化的用户数据保存在手机的sqlite数据库中
-        Database.initUser();
+        Database.initDatabase();
+//        Database.initUser();
         user = Database.getLocalUser();
 
-        // 必须等待登录的线程结束
-        final CountDownLatch l1 = new CountDownLatch(1);
-        try {
-            user.login(l1);
-            l1.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (user == null) {
+            user = new User();
+            user.setId(-1);
+            user.setPhone("-");
+            user.setBalance(0.00);
+        } else {
+            // 必须等待登录的线程结束
+            final CountDownLatch l1 = new CountDownLatch(1);
+            try {
+                user.login(l1);
+                l1.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            user.setPhone(user.getPhone().substring(0, 3) + "****" + user.getPhone().substring(7, 11));
         }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -224,16 +240,13 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 
-        //悬浮按钮点击事件：进入个人中心
+        //悬浮按钮点击事件：进入电站地图
         FloatingActionButton floatingActionButton = findViewById(R.id.floating);
         floatingActionButton.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, MapActivity.class);
                 intent.putExtra("id", Integer.toString(user.getId()));
-                intent.putExtra("name", user.getPhone());
-                intent.putExtra("balance", Double.toString(user.getBalance()));
                 startActivity(intent);
             }
         });

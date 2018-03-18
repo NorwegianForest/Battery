@@ -12,6 +12,10 @@ import org.litepal.crud.DataSupport;
 
 public class Database {
 
+    public static void initDatabase() {
+        LitePal.getDatabase();
+    }
+
     /**
      * 创建默认用户，手机号18402884427，密码123456
      * 如果找到默认用户则不进行任何操作，如果未找到则添加默认用户
@@ -21,6 +25,7 @@ public class Database {
         if (alreadyUser == null) {
             Log.d("Database", "not found");
             LitePal.getDatabase();
+            setNoDefault();
             User user = new User();
             user.setPhone("18402884427");
             user.setPassword("123456");
@@ -35,5 +40,19 @@ public class Database {
      */
     public static User getLocalUser() {
         return DataSupport.where("isDefault = ?", "1").findFirst(User.class);
+    }
+
+    public static void setNoDefault() {
+        User user = new User();
+        user.setToDefault("isDefault");
+        user.updateAll();
+    }
+
+    public static void setNewDefault(String phone, String password, int isDefault) {
+        User user = new User();
+        user.setPhone(phone);
+        user.setPassword(password);
+        user.setIsDefault(isDefault);
+        user.save();
     }
 }

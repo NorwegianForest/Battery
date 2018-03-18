@@ -1,21 +1,17 @@
 package com.example.lenovo.battery;
 
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.ThemedSpinnerAdapter;
 
 import com.battery.Constants;
 import com.battery.HttpUtil;
@@ -23,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
@@ -45,16 +40,19 @@ public class SecondFragment extends Fragment {
     private List<com.battery.Station> stationList;
     private SwipeRefreshLayout refreshLayout;
     private Handler handler;
+    private View view;
+    private boolean first;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_first,container,false);
+        view = inflater.inflate(R.layout.fragment_first,container,false);
 
         recyclerView = view.findViewById(R.id.baseViewPage);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
+        first = true;
         handler = new Handler();
         loadRecommend();
 
@@ -66,14 +64,6 @@ public class SecondFragment extends Fragment {
             @Override
             public void onRefresh() {
                 loadRecommend();
-                refreshLayout.setRefreshing(false);
-                Snackbar.make(view, "刷新完成", Snackbar.LENGTH_SHORT)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                            }
-                        }).show();
             }
         });
 
@@ -116,6 +106,13 @@ public class SecondFragment extends Fragment {
             StationAdapterPro adapter = new StationAdapterPro(stationList);
             adapter.setUserId(userId);
             recyclerView.setAdapter(adapter);
+
+            if (!first) {
+                refreshLayout.setRefreshing(false);
+                Snackbar.make(view, "刷新完成", Snackbar.LENGTH_SHORT).show();
+            }
+
+            first = false;
         }
     };
 

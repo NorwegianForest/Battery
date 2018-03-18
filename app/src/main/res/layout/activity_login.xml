@@ -1,0 +1,151 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F7F7">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/battery_graphic" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="160dp"
+        android:text="寻电"
+        android:textColor="#000000"
+        android:textSize="23sp"
+        android:typeface="monospace" />
+
+    <RelativeLayout
+        android:id="@+id/rl_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_title"
+        android:layout_marginTop="40dp"
+        android:background="#FFF">
+
+        <ImageView
+            android:id="@+id/iv_userIconName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingBottom="15dp"
+            android:paddingLeft="30dp"
+            android:paddingTop="15dp"
+            android:tint="#DEDEDE"
+            android:src="@drawable/ic_account_circle_black_24dp" />
+
+        <View
+            android:id="@+id/viewName"
+            android:layout_width="1dip"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/iv_userIconName"
+            android:background="#DEDEDE" />
+
+        <EditText
+            android:id="@+id/et_userName"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/viewName"
+            android:background="@null"
+            android:ems="19"
+            android:hint="  用户名"
+            android:textColorHint="#DEDEDE"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/iv_unameClear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/ic_cancel_black_24dp"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_userPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_userName"
+        android:layout_marginTop="1dp"
+        android:background="#FFF">
+
+        <ImageView
+            android:id="@+id/iv_userIconPwd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingBottom="15dp"
+            android:paddingLeft="30dp"
+            android:paddingTop="15dp"
+            android:tint="#DEDEDE"
+            android:src="@drawable/ic_lock_black_24dp" />
+
+        <View
+            android:id="@+id/viewPwd"
+            android:layout_width="1dip"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/iv_userIconPwd"
+            android:background="#DEDEDE" />
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/viewPwd"
+            android:background="@null"
+            android:drawablePadding="5dp"
+            android:ems="19"
+            android:hint=" 密码"
+            android:inputType="textPassword"
+            android:textColorHint="#DEDEDE"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/iv_pwdClear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/ic_cancel_black_24dp"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="340dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_userPassword"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:background="#004485"
+        android:text="登录"
+        android:textColor="#fff"
+        android:textSize="18sp" />
+
+</RelativeLayout>

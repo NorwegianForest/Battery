@@ -7,17 +7,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.battery.Appointment;
+import com.battery.Battery;
 import com.battery.Constants;
+import com.battery.Database;
 import com.battery.HttpUtil;
 import com.battery.Record;
 import com.battery.Station;
@@ -45,6 +50,7 @@ public class UserActivity extends AppCompatActivity {
     private String userId;
 
     private Vehicle vehicle;
+    private Battery batteryInVehicle;
     private Appointment appointment;
     private boolean hasAppointment;
     private Record record;
@@ -86,9 +92,12 @@ public class UserActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    private MenuItem item;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityCollector.addActivity(this);//将活动添加到活动收集器
         setContentView(R.layout.activity_user);
 
         // 设置统一的状态栏颜色
@@ -141,11 +150,21 @@ public class UserActivity extends AppCompatActivity {
 
         handler = new Handler();
 
-        // 加载各卡片的数据
-        loadVehicleCard();
-        loadAppointmentCard();
-        loadRecordCard();
-        loadCollectionCard();
+        if (!userId.equals("-1")) {
+            // 加载各卡片的数据
+            loadVehicleCard();
+            loadAppointmentCard();
+            loadRecordCard();
+            loadCollectionCard();
+        } else {
+            batteryCard.setVisibility(CardView.GONE);
+            balanceCard.setVisibility(CardView.GONE);
+            appointmentCard.setVisibility(CardView.GONE);
+            recordCard.setVisibility(CardView.GONE);
+            collectionCard.setVisibility(CardView.GONE);
+            progressDialog.dismiss();
+        }
+
         loadStationCard();
 
         // 卡片的点击事件
@@ -171,14 +190,7 @@ public class UserActivity extends AppCompatActivity {
 
                 } else {
                     vehicle = new Gson().fromJson(responseData, Vehicle.class);
-                    CountDownLatch latch = new CountDownLatch(1);
-                    vehicle.load(latch);
-                    try {
-                        latch.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
+                    loadBatteryCard();
                     new Thread(){
                         public void run(){
                             handler.post(runVehicleCard);
@@ -187,6 +199,80 @@ public class UserActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void loadBatteryCard() {
+        RequestBody body = new FormBody.Builder()
+                .add("vehicle_id", Integer.toString(vehicle.getId())).build();
+        HttpUtil.sendRequest(Constants.BATTERYADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    batteryInVehicle = new Gson().fromJson(responseData, Battery.class);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            handler.post(runBattery);
+                        }
+                    }.start();
+                }
+            }
+        });
+    }
+
+    Runnable runBattery = new Runnable() {
+        @Override
+        public void run() {
+            Double rate = batteryInVehicle.getResidualCapacity() / batteryInVehicle.getActualCapacity();
+            NumberFormat nFormat = NumberFormat.getPercentInstance();
+            battery.setText(nFormat.format(rate));
+
+            String mileageStr = "剩余里程: " + Double.toString(5.0 * batteryInVehicle.getResidualCapacity()) + "km";
+            mileage.setText(mileageStr);
+
+            String timeStr = "充电需要: " + (int) (4.0 * (batteryInVehicle.getActualCapacity() - batteryInVehicle.getResidualCapacity())) + "min";
+            chargingTime.setText(timeStr);
+        }
+    };
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.user_toolbar, menu);
+        item = menu.findItem(R.id.login);
+        if (userId.equals("-1")) {
+            this.item.setTitle("登录");
+        } else {
+            this.item.setTitle("注销");
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.login:
+                this.item = item;
+                if (this.item.getTitle().equals("登录")) {
+                    Intent intent = new Intent(UserActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                } else if (this.item.getTitle().equals("注销")) {
+                    Database.setNoDefault();
+                    Intent intent = new Intent(UserActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    ActivityCollector.finishAll();
+                }
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     /**
@@ -198,15 +284,6 @@ public class UserActivity extends AppCompatActivity {
             String brandStr = vehicle.getBrand() + " - " + vehicle.getModel();
             brand.setText(brandStr);
 
-            Double rate = vehicle.getBattery().getResidualCapacity() / vehicle.getBattery().getActualCapacity();
-            NumberFormat nFormat = NumberFormat.getPercentInstance();
-            battery.setText(nFormat.format(rate));
-
-            String mileageStr = "剩余里程: " + Double.toString(5.0 * vehicle.getBattery().getResidualCapacity()) + "km";
-            mileage.setText(mileageStr);
-
-            String timeStr = "充电需要: " + (int) (4.0 * (vehicle.getBattery().getActualCapacity() - vehicle.getBattery().getResidualCapacity())) + "min";
-            chargingTime.setText(timeStr);
         }
     };
 
@@ -331,15 +408,20 @@ public class UserActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseData = response.body().string();
-                List<Station> stationList = new Gson().fromJson(responseData,
-                        new TypeToken<List<Station>>(){}.getType());
-                count = stationList.size();
-                collectionStation = stationList.get(0);
-                new Thread(){
-                    public void run(){
-                        handler.post(runCollectionCard);
-                    }
-                }.start();
+                if (responseData.equals("无结果")) {
+
+                } else {
+                    List<Station> stationList = new Gson().fromJson(responseData,
+                            new TypeToken<List<Station>>() {
+                            }.getType());
+                    count = stationList.size();
+                    collectionStation = stationList.get(0);
+                    new Thread() {
+                        public void run() {
+                            handler.post(runCollectionCard);
+                        }
+                    }.start();
+                }
             }
         });
     }
@@ -497,5 +579,11 @@ public class UserActivity extends AppCompatActivity {
         timeName = findViewById(R.id.user_time_name);
         timeTime = findViewById(R.id.user_time_time);
         timeDistance = findViewById(R.id.user_time_distance);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityCollector.removeActivity(this);//将活动移除活动收集器
     }
 }

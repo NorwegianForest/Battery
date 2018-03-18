@@ -2,6 +2,7 @@ package com.example.lenovo.battery;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -13,9 +14,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.battery.Constants;
+import com.battery.HttpUtil;
+import com.battery.Station;
 import com.battery.User;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by lenovo on 2018/2/9.
@@ -28,17 +42,23 @@ public class FirstFragment extends Fragment{
     RecyclerView recyclerView;
     private User user;
     private SwipeRefreshLayout refreshLayout;
+    private List<Station> stationList;
+    private Handler handler;
+    private boolean first;
+    private View view;
 
     @SuppressLint("ResourceAsColor")
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_first,container,false);
+        view = inflater.inflate(R.layout.fragment_first,container,false);
 
         recyclerView = view.findViewById(R.id.baseViewPage);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
+        first = true;
+        handler = new Handler();
         // 首先刷新数据
         refresh();
 
@@ -50,14 +70,6 @@ public class FirstFragment extends Fragment{
             @Override
             public void onRefresh() {
                 refresh();
-                refreshLayout.setRefreshing(false);
-                Snackbar.make(view, "刷新完成", Snackbar.LENGTH_SHORT)
-                        .setAction("UNDO", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                }).show();
             }
         });
 
@@ -68,30 +80,45 @@ public class FirstFragment extends Fragment{
      * 根据用户的id，和数据库中的用户对应的参考车辆id，请求附近电站数据列表，并更新UI
      */
     private void refresh() {
-        // 线程控制，必须等待User对象加载车辆数据完成后，根据车辆的经纬度来获取附近电站数据
-        // 这里只等待1条线程结束，故创建CountDownLatch对象参数为1
-        CountDownLatch l2 = new CountDownLatch(1);
-        try {
-            user.loadVehicle(l2);
-            l2.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        RequestBody body = new FormBody.Builder()
+                .add("user_id", Integer.toString(user.getId())).build();
+        HttpUtil.sendRequest(Constants.STATIONADDRESS, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
 
-        // 等待获取附近电站数据的线程完成，才能更新UI
-        CountDownLatch l3 = new CountDownLatch(1);
-        com.battery.Station myStation = new com.battery.Station();
-        try {
-            myStation.loadAround(user.getId(), user.getVehicleList().get(0).getId(), l3);
-            l3.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseData = response.body().string();
+                stationList = new Gson().fromJson(responseData,
+                        new TypeToken<List<Station>>(){}.getType());
+                new Thread() {
+                    @Override
+                    public void run() {
+                        handler.post(runStation);
+                    }
+                }.start();
 
-        StationAdapterPro adapterPro = new StationAdapterPro(myStation.getStationList());
-        adapterPro.setUserId(user.getId());
-        recyclerView.setAdapter(adapterPro);
+            }
+        });
     }
+
+    Runnable runStation = new Runnable() {
+        @Override
+        public void run() {
+            StationAdapterPro adapterPro = new StationAdapterPro(stationList);
+            adapterPro.setUserId(user.getId());
+            recyclerView.setAdapter(adapterPro);
+
+            if (!first) {
+                refreshLayout.setRefreshing(false);
+                Snackbar.make(view, "刷新完成", Snackbar.LENGTH_SHORT).show();
+            }
+
+            first = false;
+        }
+    };
 
     public void setUser(User user) {
         this.user = user;
