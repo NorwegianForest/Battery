@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
             user.setId(-1);
             user.setPhone("-");
             user.setBalance(0.00);
+            System.out.println("调试：userId" + user.getId());
         } else {
             // 必须等待登录的线程结束
             final CountDownLatch l1 = new CountDownLatch(1);
